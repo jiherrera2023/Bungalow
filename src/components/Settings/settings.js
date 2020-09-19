@@ -25,6 +25,27 @@ import {
 
 export default (props) => {
   const jwt = useSelector((state) => state.global.jwt);
+  const heartClicked = () => {
+    console.log('JWT is', jwt);
+    const sublet = {
+      title: 'test sublet title',
+      address: 'test sublet address',
+      description: 'This is a test sublet',
+      bathrooms: 1,
+      price: 500,
+      footage: 100,
+      bedrooms: 100,
+      phone: '123-456-7890',
+      images: ['image1', 'image2'],
+      email: 'test@gmail.com',
+      owner: 'test',
+    };
+    axios.post(API_ROOT + API_SUBLET, sublet, { headers: { authorization: jwt } }).then((res) => {
+      console.log(res);
+    }).catch((err) => {
+      console.log(err);
+    });
+  };
   const styles = StyleSheet.create({
     container: {
       flex: 1,
@@ -122,6 +143,15 @@ export default (props) => {
               type: 'ionicon',
             }}
             onValueChange={(isChecked) => console.log('checked', isChecked)}
+          />
+          <SwitchRow
+            text="Do not disturb"
+            enabled
+            leftIcon={{
+              name: 'do-not-disturb',
+              type: 'material-community',
+            }}
+            onValueChange={(isEnabled) => console.log('checked', isEnabled)}
           />
           <BaseRow
             text="1.0.0"

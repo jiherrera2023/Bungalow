@@ -68,6 +68,7 @@ export const signIn = () => {
       console.log(result);
       if (result.type === 'success') {
         await AsyncStorage.setItem('LOGIN_RESULT_VALUE', JSON.stringify(result));
+        await dispatch(getJWT(result.accessToken, result.user.email));
         dispatch(setLoginResult(result));
       }
       dispatch(toggleIsLoggingIn());
