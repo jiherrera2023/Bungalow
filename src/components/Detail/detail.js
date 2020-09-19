@@ -9,6 +9,7 @@ import {
 
 import { Overlay } from 'react-native-elements';
 import Constants from 'expo-constants';
+import GestureRecognizer from 'react-native-swipe-gestures';
 
 import { useSelector, useDispatch } from 'react-redux';
 import { toggleGallery } from './detailSlice';
@@ -40,19 +41,25 @@ const Detail = (props) => {
     },
   });
 
+  const onSwipeRight = (gestureState) => {
+    props.navigation.pop();
+  };
+
   return (
     <View style={styles.container}>
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-      >
-        <TouchableWithoutFeedback onPress={() => dispatch(toggleGallery())}>
-          <Swiper sublet={sublet} />
-        </TouchableWithoutFeedback>
-        <DetailInfo sublet={sublet} />
-        <Overlay overlayStyle={styles.overlay} isVisible={galleryVisible} onBackdropPress={() => dispatch(toggleGallery())}>
-          <ImageGallery sublet={sublet} />
-        </Overlay>
-      </ScrollView>
+      <GestureRecognizer onSwipeRight={(state) => onSwipeRight(state)}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+        >
+          <TouchableWithoutFeedback onPress={() => dispatch(toggleGallery())}>
+            <Swiper sublet={sublet} />
+          </TouchableWithoutFeedback>
+          <DetailInfo sublet={sublet} />
+          <Overlay overlayStyle={styles.overlay} isVisible={galleryVisible} onBackdropPress={() => dispatch(toggleGallery())}>
+            <ImageGallery sublet={sublet} />
+          </Overlay>
+        </ScrollView>
+      </GestureRecognizer>
     </View>
   );
 };

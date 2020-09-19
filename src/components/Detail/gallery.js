@@ -25,9 +25,7 @@ const ImageGallery = (props) => {
 
   YellowBox.ignoreWarnings(['Animated: `useNativeDriver`']);
 
-  const imgs = props.sublet.images.map((url) => {
-    return { uri: url };
-  });
+  const imgs = [props.sublet.mainImg, ...props.sublet.otherImgs];
 
   return (
     <GallerySwiper
