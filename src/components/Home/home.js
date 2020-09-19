@@ -103,7 +103,6 @@ const Home = (props) => {
             } else {
               setCurrentIndex(cardIndex + 1);
             }
-            console.log(currentIndex);
             dispatch(setCurrentSublet(cards[currentIndex + 1]));
           }}
           backgroundColor="#C1DCE7"

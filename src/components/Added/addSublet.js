@@ -3,8 +3,9 @@ import {
   StyleSheet, View, Text,
 } from 'react-native';
 import {
-  Slider,
+  Slider, Input,
 } from 'react-native-elements';
+import { useSelector } from 'react-redux';
 
 const styles = StyleSheet.create({
   container: {
@@ -21,9 +22,20 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
 });
+
+async function onChangeDestination(destination, latitude, longitude) {
+  const apiUrl = `https://maps.googleapis.com/maps/api/place/autcomplete/json?key=AIzaSyDgZGG4nGHkc1KUVns-69jzSCgSvbCFJNg&input=${destination}&location=${latitude},${longitude}`;
+  try {
+    const result = await fetch(apiUrl);
+    const json = await result.json();
+    console.log(json);
+  } catch (err) {
+    console.log(err);
+  }
+}
 const addSublet = () => {
   const [bedroom, setBedroom] = React.useState(0);
-  const [address, setAddress] = React.useState(0);
+  const [address, setAddress] = React.useState('');
   const [description, setDescription] = React.useState(0);
   const [bathroom, setBathroom] = React.useState(0);
   const [phone, setPhone] = React.useState(0);
@@ -33,11 +45,21 @@ const addSublet = () => {
   const [price, setPrice] = React.useState(0);
   const biggerBedroom = (bedroom > 8);
   const biggerBathroom = (bathroom > 8);
+  const [errorMsg, setErrorMsg] = React.useState(null);
+  const location = useSelector((state) => state.global.location);
   return (
     <View style={styles.container}>
       <Text>
         Tells us about your sublet!
       </Text>
+      <Input
+        placeholder="Enter Address"
+        onChangeText={(value) => {
+          setAddress(value);
+          onChangeDestination(value, location.coords.latitude, location.coords.longitude);
+        }}
+        value={address}
+      />
       <Slider
         value={bedroom}
         onValueChange={(value) => setBedroom(value)}

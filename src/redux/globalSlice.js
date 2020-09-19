@@ -21,6 +21,9 @@ export const globalSlice = createSlice({
     setLoginResult: (state, action) => {
       state.loginResult = action.payload;
     },
+    setIsLoading: (state, action) => {
+      state.loginResult.isLoading = action.payload;
+    },
     appendSublet: (state, action) => {
       state.subletData.push(action.payload);
     },
@@ -33,28 +36,26 @@ export const globalSlice = createSlice({
   },
 });
 export const {
-  setLoginResult, appendSublet, toggleIsLoggingIn, setJWT,
+  setLoginResult, appendSublet, toggleIsLoggingIn, setJWT, setIsLoading,
 } = globalSlice.actions;
+
+const callJWT = async (token, email, dispatch) => {
+  // TODO: Merge these into one API call
+  await axios.post(API_ROOT + API_SIGNIN, { accessToken: token }).then((res) => {
+    dispatch(setJWT(res.data.jwt));
+  }).catch((err) => {
+    axios.post(API_ROOT + API_SIGNUP, { accessToken: token, email }).then((res2) => {
+      dispatch(setJWT(res2.data.jwt));
+    }).catch((err2) => {
+      console.log(err2);
+    });
+  });
+};
 
 export const getJWT = (token, email) => {
   return async (dispatch, getState) => {
-    axios.post(API_ROOT + API_SIGNIN, { accessToken: token }).then((res) => {
-      dispatch(setJWT(res.data.jwt));
-      axios.get('https://hackmit-api.herokuapp.com/api/sublets/5f5d5ffd9c0d430038cf3017', { headers: { authorization: res.data.jwt } }).then((res3) => {
-        console.log('\n\n\n\n\n\n');
-        console.log(res3.data);
-        console.log('\n\n\n\n\n\n');
-      }).catch((err4) => {
-        console.log('RIP');
-        console.log(err4);
-      });
-    }).catch((err) => {
-      axios.post(API_ROOT + API_SIGNUP, { accessToken: token, email }).then((res2) => {
-        dispatch(setJWT(res2.data.jwt));
-      }).catch((err2) => {
-        console.log(err2);
-      });
-    });
+    callJWT(token, email, dispatch);
+    dispatch(setIsLoading(false));
   };
 };
 
