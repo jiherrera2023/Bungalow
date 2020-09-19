@@ -6,7 +6,7 @@ import * as Google from 'expo-google-app-auth';
 import * as Location from 'expo-location';
 import axios from 'axios';
 import {
-  API_ROOT, API_ACCESS, API_LOAD_INITIAL_STATE,
+  API_ROOT, API_SIGNUP, API_SIGNIN,
 } from '../configs';
 
 export const globalSlice = createSlice({
@@ -17,7 +17,12 @@ export const globalSlice = createSlice({
     subletData: [],
     isLoggingIn: false,
     jwt: '',
-    location: null,
+    location: {
+      coords: {
+        longitude: 0,
+        latitude: 0,
+      },
+    },
   },
   reducers: {
     setLoginResult: (state, action) => {
@@ -46,31 +51,28 @@ export const {
 
 const callJWT = async (token, email, dispatch) => {
   // TODO: Merge these into one API call. Add Referesh token functionality
-  await axios.post(API_ROOT + API_ACCESS, { accessToken: token, email: email }).then((res) => {
-    dispatch(setJWT(res.data.jwt));
-  }).catch((err) => {
-    console.log(err);
-  });
-};
-
-export const loadStateFromBackend = (jwt) => {
-  return async (dispatch, getState) => {
-    // Get state w/ jwt accessToken
-    // save state to homeslice, likedSlice, and addedSlice
-    const userEmail = getState().global.loginResult.user.email;
-    const jwtToken = getState().global.jwt;
-    await axios.post(API_ROOT + API_LOAD_INITIAL_STATE, { email: userEmail, amount: 15 }, { headers: { authorization: jwtToken } }).then((res) => {
-      console.log(res.data);
-    }).catch((err) => {
-      console.log(err);
-    });
-  };
+  // await axios.post(API_ROOT + API_SIGNIN, { accessToken: token }).then((res) => {
+  //   dispatch(setJWT(res.data.jwt));
+  // }).catch((err) => {
+  //   axios.post(API_ROOT + API_SIGNUP, { accessToken: token, email }).then((res2) => {
+  //     dispatch(setJWT(res2.data.jwt));
+  //   }).catch((err2) => {
+  //     console.log(err2);
+  //   });
+  // });
 };
 
 export const getJWT = (token, email) => {
   return async (dispatch, getState) => {
     callJWT(token, email, dispatch);
     dispatch(setIsLoading(false));
+  };
+};
+
+export const loadStateFromBackend = (token) => {
+  return async (dispatch, getState) => {
+    // Get state w/ jwt accessToken
+    // save state to homeslice, likedSlice, and addedSlice
   };
 };
 
@@ -100,7 +102,8 @@ export const signIn = () => {
       if (result.type === 'success') {
         await AsyncStorage.setItem('LOGIN_RESULT_VALUE', JSON.stringify(result));
         await dispatch(getJWT(result.accessToken, result.user.email));
-        await dispatch(loadStateFromBackend());
+        const token = getState().global.jwt;
+        await dispatch(loadStateFromBackend(token));
         dispatch(setLoginResult(result));
       }
       // Toggle Login Button Load Animation Off
