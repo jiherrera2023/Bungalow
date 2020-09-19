@@ -1,6 +1,13 @@
 import React, { useEffect } from 'react';
 import {
-  StyleSheet, View, TouchableHighlight, Keyboard, ScrollView, Platform, ImageBackground,
+  StyleSheet,
+  View,
+  TouchableHighlight,
+  Keyboard,
+  ScrollView,
+  Platform,
+  ImageBackground,
+  ImageStore,
 } from 'react-native';
 import {
   Slider, Input, Text, Button, Icon, Badge,
@@ -41,6 +48,41 @@ const styles = StyleSheet.create({
 
   },
 });
+
+const uploadImagesToImgur = async (images) => {
+  const auth = 'Client-ID cd419a05267203b';
+
+  const rawImages = images.map(async (item, i) => {
+    await new Promise((resolve, reject) => {
+      return ImageStore.getBase64ForTag(item.image, (data) => {
+        resolve(data);
+      });
+    });
+  });
+
+  const imageUrls = [];
+
+  await rawImages.forEach(async (item, i) => {
+    const formData = new FormData();
+    formData.append('upload', {
+      image: item,
+      type: 'base64',
+    });
+    const result = await fetch('https://api.imgur.com/3/image', {
+      method: 'POST',
+      body: formData,
+      headers: {
+        Authorization: auth,
+        Accept: 'application/json',
+      },
+    });
+
+    const imgUrl = `https://imgur.com/gallery/${result.data.id}`;
+
+    imageUrls.push(imgUrl);
+  });
+  return imageUrls;
+};
 
 const addSublet = () => {
   const [bedroom, setBedroom] = React.useState(0);
