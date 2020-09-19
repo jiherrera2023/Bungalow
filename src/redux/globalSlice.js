@@ -40,11 +40,11 @@ export const getJWT = (token, email) => {
   return async (dispatch, getState) => {
     axios.post(API_ROOT + API_SIGNIN, { accessToken: token }).then((res) => {
       console.log(res);
-      dispatch(setJWT(res.body.jwt));
+      dispatch(setJWT(res.data.jwt));
     }).catch((err) => {
       console.log(err);
       axios.post(API_ROOT + API_SIGNUP, { accessToken: token, email }).then((res2) => {
-        dispatch(setJWT(res2.body.jwt));
+        dispatch(setJWT(res2.data.jwt));
         console.log('signed up', res2);
       }).catch((err2) => {
         console.log(err);
@@ -68,7 +68,6 @@ export const signIn = () => {
       console.log(result);
       if (result.type === 'success') {
         await AsyncStorage.setItem('LOGIN_RESULT_VALUE', JSON.stringify(result));
-        await dispatch(getJWT(result.accessToken, result.user.email));
         dispatch(setLoginResult(result));
       }
       dispatch(toggleIsLoggingIn());
