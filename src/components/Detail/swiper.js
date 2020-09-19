@@ -28,7 +28,9 @@ const Swiper = (props) => {
   });
 
   const dispatch = useDispatch();
-  const imgs = [props.sublet.mainImg, ...props.sublet.otherImgs];
+  const imgs = props.sublet.images.map((url) => {
+    return { uri: url };
+  });
 
   const swiperRef = React.useRef(null);
 

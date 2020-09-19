@@ -16,7 +16,7 @@ const renderItem = (item, navigation) => {
         navigation.navigate('Liked', { screen: 'LikedDetail', params: item });
       }}
     >
-      <Avatar title={item.address} source={item.mainImg.uri && { uri: item.mainImg.uri }} />
+      <Avatar title={item.address} source={item.images[0] && { uri: item.images[0] }} />
       <ListItem.Content>
         <ListItem.Title>{item.address}</ListItem.Title>
         <ListItem.Subtitle>${item.price} mo.</ListItem.Subtitle>

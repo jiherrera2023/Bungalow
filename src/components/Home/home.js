@@ -3,52 +3,32 @@ import {
   StyleSheet,
   View,
   Platform,
+  Text,
 } from 'react-native';
 import { Image } from 'react-native-elements';
 import Constants from 'expo-constants';
 import Swiper from 'react-native-deck-swiper';
 
+import { useSelector, useDispatch } from 'react-redux';
+import { callForNextBatch } from './homeSlice';
+
 import Icons from './icons';
 
-const dummyTempSublet = (owner) => ({
-  address: '12345 First St. New York, NY 11111',
-  price: '1000',
-  description: "  Come check out this shitty excuse for an aparment we have. You are certainly going to get ripped off, but at least you can have fun while doing it. We don't give a shit about you are your dog.", // eslint-disable-line
-  email: 'filler@gmail.com',
-  owner,
-  phone: '123-456-7890',
-  mainImg: { uri: 'https://im-media.voltron.voanews.com/Drupal/01live-166/styles/sourced/s3/2019-11/IMG_5577.JPG?itok=Vl0aR9EE' },
-  otherImgs: [
-    { uri: 'https://www.coldwellbanker.com/images_brand/CB/72508062.jpg' },
-    { uri: 'https://static.dezeen.com/uploads/2020/02/house-in-the-landscape-niko-arcjitect-architecture-residential-russia-houses-khurtin_dezeen_2364_hero.jpg' },
-    { uri: 'https://charlotteagenda-charlotteagenda.netdna-ssl.com/wp-content/uploads/2019/10/open-houses-october.jpg' },
-  ],
-});
-
 const Home = (props) => {
-  const [cards, setCards] = React.useState([dummyTempSublet('a'), dummyTempSublet('a'), dummyTempSublet('a')]);
+  const dispatch = useDispatch();
+  const cards = useSelector((state) => state.home.sublets);
   const [swiper, setSwiper] = React.useState(undefined);
+  const [currentIndex, setCurrentIndex] = React.useState(0);
+  const [heart, setHeart] = React.useState(true);
 
-  const getFeedItemsAsync = () => {
-    return Promise.resolve([dummyTempSublet('a'), dummyTempSublet('a'), dummyTempSublet('a')]);
+  const fetchNextCards = async () => {
+    await dispatch(callForNextBatch());
+    swiper.jumpToCardIndex(0); // this makes everything work
   };
 
-  const fetchNextCards = () => {
-    getFeedItemsAsync().then((items) => {
-      if (items !== null) {
-        setCards(items);
-        swiper.jumpToCardIndex(0); // this makes everything work
-      }
-    });
-  };
-
-  const onSwipedAllCards = () => {
+  const onSwipedThirdToLastCard = () => {
     fetchNextCards();
   };
-
-  React.useEffect(() => {
-    // fetchNextCards();
-  }, []);
 
   const styles = StyleSheet.create({
     container: {
@@ -66,8 +46,22 @@ const Home = (props) => {
       paddingTop: 0,
     },
     image: {
+      flexDirection: 'column',
+      alignItems: 'flex-end',
+      justifyContent: 'space-between',
       borderRadius: 25,
       height: '100%',
+      width: '100%',
+    },
+    text: {
+      color: 'whitesmoke',
+      fontSize: 20,
+      fontWeight: 'bold',
+      padding: 20,
+    },
+    textWrapper: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
       width: '100%',
     },
   });
@@ -85,10 +79,17 @@ const Home = (props) => {
             return (
               <View style={styles.card}>
                 <Image
-                  source={{ uri: sublet.mainImg.uri }}
+                  source={{ uri: sublet.images[0] }}
                   style={styles.image}
                   resizeMode="cover"
-                />
+                  transition={false}
+                >
+                  <View />
+                  <View style={styles.textWrapper}>
+                    <Text style={styles.text}>{sublet.title}</Text>
+                    <Text style={styles.text}>${sublet.price} mo.</Text>
+                  </View>
+                </Image>
               </View>
             );
           }}
@@ -96,15 +97,22 @@ const Home = (props) => {
           cardHorizontalMargin={15}
           marginBottom={29}
           onTapCard={(index) => props.navigation.navigate('Home', { screen: 'HomeDetail', params: cards[index] })}
-          onSwiped={(cardIndex) => {}}
-          onSwipedAll={onSwipedAllCards}
+          onSwiped={(cardIndex) => {
+            if ((cardIndex + 1) % (cards.length - 2) === 0) {
+              onSwipedThirdToLastCard();
+              setCurrentIndex(0);
+            } else {
+              setCurrentIndex(cardIndex + 1);
+            }
+            setHeart(true);
+          }}
           backgroundColor="#C1DCE7"
           stackSize={2}
           swipeBackCard
           useViewOverflow={Platform.OS === 'ios'}
         />
         <View style={{ marginBottom: '20%' }}>
-          <Icons />
+          <Icons sublet={cards[currentIndex]} heart={heart} setHeart={setHeart} />
         </View>
       </View>
     </>
