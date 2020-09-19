@@ -3,7 +3,7 @@ import {
   StyleSheet, View, TouchableHighlight, Keyboard, ScrollView, Platform, ImageBackground,
 } from 'react-native';
 import {
-  Slider, Input, Text, Button, Icon,
+  Slider, Input, Text, Button, Icon, Badge,
 } from 'react-native-elements';
 import { useSelector } from 'react-redux';
 import * as ImagePicker from 'expo-image-picker';
@@ -18,10 +18,14 @@ const styles = StyleSheet.create({
   bedroom: {
     marginTop: 20,
     zIndex: 1,
+    marginLeft: 20,
+    marginRight: 20,
   },
   bathroom: {
     marginTop: 20,
     zIndex: 1,
+    marginLeft: 20,
+    marginRight: 20,
   },
   locationSuggestion: {
     backgroundColor: 'white',
@@ -49,11 +53,15 @@ const addSublet = () => {
   const [footage, setFootage] = React.useState('');
   const [price, setPrice] = React.useState('');
   const [locationHeight, setLocationHeight] = React.useState(0);
+  const [locationPredictions, setLocationPredictions] = React.useState(null);
+  const [submitErrors, setErrors] = React.useState([]);
+  const [scrollView, setScrollView] = React.useState(null);
   const biggerBedroom = (bedroom > 8);
   const biggerBathroom = (bathroom > 8);
   const imageLength = (images.length > 0);
+  const errorLength = (submitErrors.length > 0);
   const location = useSelector((state) => state.global.location);
-  const [locationPredictions, setLocationPredictions] = React.useState(null);
+
   function pressedPrediction(prediction) {
     Keyboard.dismiss();
     setAddress(prediction.description);
@@ -110,6 +118,29 @@ const addSublet = () => {
     // Update the document title using the browser API
     getPermissionAsync();
   });
+  async function submit() {
+    const errors = [];
+    if (title.localeCompare('') === 0) {
+      errors.push('title');
+    }
+    if (address.localeCompare('') === 0) {
+      errors.push('address');
+    }
+    if (description.localeCompare('') === 0) {
+      errors.push('description');
+    }
+    if (footage.localeCompare('') === 0) {
+      errors.push('footage');
+    }
+    if (phone.localeCompare('') === 0) {
+      errors.push('phone');
+    }
+    if (images.length === 0) {
+      errors.push('images');
+    }
+    console.log('submit');
+    setErrors(errors);
+  }
   async function onChangeDestination(destination, latitude, longitude) {
     const apiUrl = `https://maps.googleapis.com/maps/api/place/autocomplete/json?key=AIzaSyDgZGG4nGHkc1KUVns-69jzSCgSvbCFJNg&input=${destination}&location=${latitude},${longitude}`;
     try {
@@ -138,6 +169,7 @@ const addSublet = () => {
   }
   return (
     <ScrollView
+      ref={(ref) => setScrollView(ref)}
       keyboardShouldPersistTaps="handled"
     >
       <View style={styles.container}>
@@ -165,14 +197,14 @@ const addSublet = () => {
           }}
           onFocus={() => {
             if (address.localeCompare('') !== 0) {
-              onChangeDestination(address, location.coords.latitude, location.coords.longitude);
+              onChangeDestination(address, location.coords.latitude || 0, location.coords.longitude || 0);
             }
           }}
           autoCompleteType="off"
           placeholder="Enter Address"
           onChangeText={(value) => {
             setAddress(value);
-            onChangeDestination(value, location.coords.latitude, location.coords.longitude);
+            onChangeDestination(value, location.coords.latitude || 0, location.coords.longitude || 0);
           }}
           value={address}
           style={
@@ -238,7 +270,13 @@ const addSublet = () => {
           style={styles.bedroom}
         />
 
-        <Text>
+        <Text style={
+          {
+            marginLeft: 20,
+            marginRight: 20,
+          }
+        }
+        >
           {!biggerBedroom
             ? `Bedrooms: ${bedroom}`
             : 'Bedrooms: 8+'}
@@ -254,6 +292,8 @@ const addSublet = () => {
         <Text style={
         {
           marginBottom: 30,
+          marginLeft: 20,
+          marginRight: 20,
         }
       }
         >
@@ -266,25 +306,75 @@ const addSublet = () => {
           {images.map(
             (image) => {
               return (
-                <>
-                  <ImageBackground source={{ uri: image.image }} style={{ width: 200, height: 200, marginTop: 10 }}>
-                    <Icon
-                      position="relative"
-                      name="trash"
-                      style={
+                <ImageBackground source={{ uri: image.image }} key={image.key} style={{ width: 200, height: 200, marginTop: 10 }}>
+                  <Icon
+                    position="relative"
+                    name="trash"
+                    containerStyle={
                         {
-                          marginLeft: 50,
+                          width: 26,
+                          height: 26,
+                          alignItems: 'center',
+                          alignSelf: 'center',
+                          marginTop: 87,
+                          backgroundColor: 'rgba(255, 255, 255, 0.5)',
                         }
                       }
-                      type="font-awesome"
-                      onPress={() => deleteImage(image.key)}
-                    />
-                  </ImageBackground>
-                </>
+                    type="font-awesome"
+                    onPress={() => deleteImage(image.key)}
+                  />
+                </ImageBackground>
               );
             },
           )}
         </View>
+      </View>
+      <View style={{
+        flex: 1, alignItems: 'center', justifyContent: 'center', marginTop: 40,
+      }}
+      >
+        <Button title="Add Sublet!"
+          onPress={() => {
+            submit();
+            setTimeout(() => {
+              scrollView.scrollToEnd();
+            }, 200);
+          }}
+        />
+        {errorLength
+          ? (
+            <Badge value="The Following entries were not filled:"
+              status="primary"
+              badgeStyle={{
+                padding: 10,
+                marginTop: 10,
+              }}
+              textStyle={
+                {
+                  fontSize: 18,
+                }
+              }
+            />
+          )
+          : null}
+        {errorLength ? submitErrors.map(
+          (error) => {
+            return (
+              <Badge value={error}
+                status="primary"
+                badgeStyle={{
+                  padding: 10,
+                  marginTop: 3,
+                }}
+                textStyle={
+                {
+                  fontSize: 18,
+                }
+              }
+              />
+            );
+          },
+        ) : null}
       </View>
     </ScrollView>
   );
