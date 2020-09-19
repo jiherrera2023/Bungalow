@@ -3,6 +3,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const dummyTempSublet = (txt) => ({
+  id: '24y52uy45t2i435y2',
   address: '12345 First St. New York, NY 11111',
   price: '1000',
   description: "  Come check out this shitty excuse for an aparment we have. You are certainly going to get ripped off, but at least you can have fun while doing it. We don't give a shit about you are your dog.", // eslint-disable-line

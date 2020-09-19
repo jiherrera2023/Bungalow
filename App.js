@@ -7,7 +7,6 @@ import store from './src/redux/store';
 import MainTabBar from './src/navigation/navbar';
 import Login from './src/components/login';
 import { setLoginResult, getJWT } from './src/redux/globalSlice';
-import AddSublet from './src/components/addSublet';
 
 const App = () => {
   const dispatch = useDispatch();
@@ -34,7 +33,7 @@ const App = () => {
   return (
     <>
       <StatusBar style="auto" />
-      <AddSublet />
+      {displayComponent}
     </>
   );
 };

@@ -3,10 +3,10 @@ import { StyleSheet, Text, View } from 'react-native';
 import { ListItem, Avatar } from 'react-native-elements';
 import Constants from 'expo-constants';
 import { SwipeListView } from 'react-native-swipe-list-view';
+import { AntDesign } from '@expo/vector-icons';
 
 import { useSelector, useDispatch } from 'react-redux';
-import { removeFromLiked } from './likedSlice';
-import { setHeart } from '../Home/homeSlice';
+import { removeFromAdded } from './addedSlice';
 
 const keyExtractor = (item, index) => index.toString();
 
@@ -16,7 +16,7 @@ const renderItem = (item, navigation) => {
       containerStyle={{ backgroundColor: 'whitesmoke' }}
       bottomDivider
       onPress={() => {
-        navigation.navigate('Liked', { screen: 'LikedDetail', params: item });
+        navigation.navigate('Added', { screen: 'AddedDetail', params: item });
       }}
     >
       <Avatar title={item.address} source={item.images[0] && { uri: item.images[0] }} />
@@ -29,9 +29,9 @@ const renderItem = (item, navigation) => {
   );
 };
 
-const Liked = ({ navigation }) => {
+const Added = ({ navigation }) => {
   const dispatch = useDispatch();
-  const liked = useSelector((state) => state.liked.liked);
+  const added = useSelector((state) => state.added.added);
 
   const styles = StyleSheet.create({
     list: {
@@ -59,11 +59,17 @@ const Liked = ({ navigation }) => {
       marginTop: Constants.statusBarHeight,
       textAlign: 'center',
     },
+    icon: {
+      position: 'absolute',
+      bottom: 25,
+      right: 25,
+      backgroundColor: '#C1DCE7',
+    },
   });
 
-  let emptyLikedComponent = <View style={styles.emptyText} />;
-  if (liked.length === 0) {
-    emptyLikedComponent = <Text style={styles.emptyText}>Looks like you dont have any liked sublets. Add some from your home page!</Text>;
+  let emptyAddedComponent = <View style={styles.emptyText} />;
+  if (added.length === 0) {
+    emptyAddedComponent = <Text style={styles.emptyText}>Looks like you dont have any posted sublets.</Text>;
   }
 
   const closeRow = (rowMap, index) => {
@@ -72,23 +78,17 @@ const Liked = ({ navigation }) => {
     }
   };
 
-  const currentHomeSublet = useSelector((state) => state.home.currentSublet);
-
   const deleteSublet = (rowMap, index) => {
     closeRow(rowMap, index);
-    dispatch(removeFromLiked(liked[index]));
-
-    if (JSON.stringify(liked[index]) === JSON.stringify(currentHomeSublet)) {
-      dispatch(setHeart(true));
-    }
+    dispatch(removeFromAdded(added[index]));
   };
 
   return (
     <>
-      {emptyLikedComponent}
+      {emptyAddedComponent}
       <SwipeListView
         keyExtractor={keyExtractor}
-        data={liked}
+        data={added}
         renderItem={({ item }) => renderItem(item, navigation)}
         style={styles.list}
         renderHiddenItem={
@@ -101,8 +101,17 @@ const Liked = ({ navigation }) => {
         rightOpenValue={-100}
         disableRightSwipe
       />
+      <AntDesign
+        style={styles.icon}
+        name="pluscircle"
+        size={60}
+        color="#58AADA"
+        onPress={() => {
+          navigation.navigate('Added', { screen: 'AddedPost' });
+        }}
+      />
     </>
   );
 };
 
-export default Liked;
+export default Added;

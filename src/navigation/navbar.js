@@ -5,6 +5,7 @@ import { AntDesign } from '@expo/vector-icons'; // react-native-vector-icons/Fon
 import HomeNavigator from './homeNavigator';
 import LikedNavigator from './likedNavigator';
 import SettingsNavigator from './settingsNavigator';
+import AddedNavigator from './addedNavigator';
 
 const Tab = createBottomTabNavigator();
 
@@ -34,6 +35,8 @@ const MainTabBar = () => {
                 iconName = 'setting';
               } else if (route.name === 'Liked') {
                 iconName = 'heart';
+              } else if (route.name === 'Added') {
+                iconName = 'plus';
               }
 
               // Return the respective icon
@@ -47,6 +50,7 @@ const MainTabBar = () => {
         }
         <Tab.Screen name="Home" component={HomeNavigator} />
         <Tab.Screen name="Liked" component={LikedNavigator} />
+        <Tab.Screen name="Added" component={AddedNavigator} />
         <Tab.Screen name="Settings" component={SettingsNavigator} />
       </Tab.Navigator>
     </NavigationContainer>

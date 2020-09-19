@@ -3,6 +3,7 @@ import detailReducer from '../components/Detail/detailSlice';
 import globalReducer from './globalSlice';
 import likedReducer from '../components/Liked/likedSlice';
 import homeReducer from '../components/Home/homeSlice';
+import addedReducer from '../components/Added/addedSlice';
 
 export default configureStore({
   reducer: {
@@ -10,5 +11,6 @@ export default configureStore({
     global: globalReducer,
     liked: likedReducer,
     home: homeReducer,
+    added: addedReducer,
   },
 });

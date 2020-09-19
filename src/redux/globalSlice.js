@@ -39,12 +39,18 @@ export const {
 export const getJWT = (token, email) => {
   return async (dispatch, getState) => {
     axios.post(API_ROOT + API_SIGNIN, { accessToken: token }).then((res) => {
-      console.log(res);
       dispatch(setJWT(res.data.jwt));
+      axios.get('https://hackmit-api.herokuapp.com/api/sublets/5f5d5ffd9c0d430038cf3017', { headers: { authorization: res.data.jwt } }).then((res3) => {
+        console.log('\n\n\n\n\n\n');
+        console.log(res3.data);
+        console.log('\n\n\n\n\n\n');
+      }).catch((err4) => {
+        console.log('RIP');
+        console.log(err4);
+      });
     }).catch((err) => {
       axios.post(API_ROOT + API_SIGNUP, { accessToken: token, email }).then((res2) => {
         dispatch(setJWT(res2.data.jwt));
-        console.log('signed up', res2);
       }).catch((err2) => {
         console.log(err2);
       });
