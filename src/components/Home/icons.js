@@ -4,8 +4,9 @@ import {
   View,
 } from 'react-native';
 import { AntDesign, Entypo, SimpleLineIcons } from '@expo/vector-icons';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { addToLiked, removeFromLiked } from '../Liked/likedSlice';
+import { setHeart } from './homeSlice';
 
 const Home = (props) => {
   const styles = StyleSheet.create({
@@ -22,20 +23,21 @@ const Home = (props) => {
     },
   });
   const dispatch = useDispatch();
+  const heart = useSelector((state) => state.home.heart);
 
   const toggleLiked = () => {
-    if (props.heart) {
+    if (heart) {
       // This sublet should be in liked
       dispatch(addToLiked(props.sublet));
     } else {
       dispatch(removeFromLiked(props.sublet));
     }
-    props.setHeart(!props.heart);
+    dispatch(setHeart(!heart));
   };
 
   return (
     <View style={styles.iconWrapper}>
-      <AntDesign name={props.heart ? 'hearto' : 'heart'} size={32} color="pink" onPress={toggleLiked} style={styles.icon} />
+      <AntDesign name={heart ? 'hearto' : 'heart'} size={32} color="pink" onPress={toggleLiked} style={styles.icon} />
       <AntDesign name="message1" size={32} color="black" style={styles.icon} />
       <Entypo name="location-pin" size={32} color="blue" style={styles.icon} />
       <SimpleLineIcons name="options" size={32} color="black" style={styles.icon} />

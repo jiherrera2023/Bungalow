@@ -10,7 +10,7 @@ import Constants from 'expo-constants';
 import Swiper from 'react-native-deck-swiper';
 
 import { useSelector, useDispatch } from 'react-redux';
-import { callForNextBatch } from './homeSlice';
+import { callForNextBatch, setCurrentSublet } from './homeSlice';
 
 import Icons from './icons';
 
@@ -19,7 +19,6 @@ const Home = (props) => {
   const cards = useSelector((state) => state.home.sublets);
   const [swiper, setSwiper] = React.useState(undefined);
   const [currentIndex, setCurrentIndex] = React.useState(0);
-  const [heart, setHeart] = React.useState(true);
 
   const fetchNextCards = async () => {
     await dispatch(callForNextBatch());
@@ -104,7 +103,8 @@ const Home = (props) => {
             } else {
               setCurrentIndex(cardIndex + 1);
             }
-            setHeart(true);
+            console.log(currentIndex);
+            dispatch(setCurrentSublet(cards[currentIndex + 1]));
           }}
           backgroundColor="#C1DCE7"
           stackSize={2}
@@ -112,7 +112,7 @@ const Home = (props) => {
           useViewOverflow={Platform.OS === 'ios'}
         />
         <View style={{ marginBottom: '20%' }}>
-          <Icons sublet={cards[currentIndex]} heart={heart} setHeart={setHeart} />
+          <Icons sublet={cards[currentIndex]} />
         </View>
       </View>
     </>

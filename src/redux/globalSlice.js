@@ -42,21 +42,18 @@ export const getJWT = (token, email) => {
       console.log(res);
       dispatch(setJWT(res.data.jwt));
     }).catch((err) => {
-      console.log(err);
       axios.post(API_ROOT + API_SIGNUP, { accessToken: token, email }).then((res2) => {
         dispatch(setJWT(res2.data.jwt));
         console.log('signed up', res2);
       }).catch((err2) => {
-        console.log(err);
+        console.log(err2);
       });
     });
-    console.log('IN GET JWT', token, email);
   };
 };
 
 export const signIn = () => {
   // the inside "thunk function"
-  console.log('logging in');
   return async (dispatch, getState) => {
     try {
       await dispatch(toggleIsLoggingIn());

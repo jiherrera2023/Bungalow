@@ -25,15 +25,23 @@ export const homeSlice = createSlice({
   name: 'home',
   initialState: {
     sublets: [dummyTempSublet('a'), dummyTempSublet('b'), dummyTempSublet('c'), dummyTempSublet('d'), dummyTempSublet('e'), dummyTempSublet('f')],
+    heart: { isEmpty: true, sublet: undefined },
+    currentSublet: dummyTempSublet('a'),
   },
   reducers: {
     pushNextSublets: (state, action) => {
       state.sublets = [...(state.sublets.slice(Math.max(state.sublets.length - 2, 0))), ...action.payload];
     },
+    setHeart: (state, action) => {
+      state.heart = action.payload;
+    },
+    setCurrentSublet: (state, action) => {
+      state.currentSublet = action.payload;
+    },
   },
 });
 
-export const { pushNextSublets } = homeSlice.actions;
+export const { pushNextSublets, setHeart, setCurrentSublet } = homeSlice.actions;
 
 export const callForNextBatch = () => {
   // the inside "thunk function"
