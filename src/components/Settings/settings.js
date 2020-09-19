@@ -13,13 +13,36 @@ import {
   SwitchRow,
 } from 'react-native-settings-view';
 import AsyncStorage from '@react-native-community/async-storage';
+import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import { Button } from 'react-native-elements';
 import Constants from 'expo-constants';
 
 import { setLoginResult } from '../../redux/globalSlice';
+import {
+  API_ROOT, API_SUBLET,
+} from '../../configs';
 
-export default () => {
+function heartClicked() {
+  console.log('JWT is', jwt);
+  heartStatus(!heart);
+  const sublet = {
+    title: 'test sublet title',
+    address: 'test sublet address',
+    description: 'This is a test sublet',
+    bathrooms: 1,
+    price: 500,
+    footage: 100,
+    bedrooms: 100,
+  };
+  axios.post(API_ROOT + API_SUBLET, sublet, { headers: { authorization: jwt } }).then((res) => {
+    console.log(res);
+  }).catch((err) => {
+    console.log(err);
+  });
+}
+
+export default (props) => {
   const styles = StyleSheet.create({
     container: {
       flex: 1,
@@ -68,8 +91,8 @@ export default () => {
 
   const dispatch = useDispatch();
   const clearLoginInfo = async () => {
-    await AsyncStorage.setItem('LOGIN_RESULT_VALUE', JSON.stringify({}));
-    dispatch(setLoginResult({}));
+    await AsyncStorage.removeItem('LOGIN_RESULT_VALUE');
+    dispatch(setLoginResult({ isLoading: false }));
   };
 
   const userInfo = useSelector((state) => state.global.loginResult.user);
@@ -91,7 +114,7 @@ export default () => {
               name: 'file-document',
               type: 'material-community',
             }}
-            onPress={() => console.log('terms')}
+            onPress={() => props.navigation.navigate('Settings', { screen: 'TermsAndConditions' })}
           />
           <NavigateRow
             text="Privacy Policy"
@@ -99,7 +122,7 @@ export default () => {
               name: 'folder-lock',
               type: 'material-community',
             }}
-            onPress={() => console.log('policy')}
+            onPress={() => props.navigation.navigate('Settings', { screen: 'PrivacyPolicy' })}
           />
           <NavigateRow
             text="Contact us"
@@ -107,7 +130,7 @@ export default () => {
               name: 'users',
               type: 'font-awesome',
             }}
-            onPress={() => console.log('contact')}
+            onPress={() => heartClicked()}
           />
           <CheckRow
             text="Notifications"
@@ -133,7 +156,7 @@ export default () => {
               name: 'tag',
               type: 'font-awesome',
             }}
-            rightContent={<Text>0.1.0</Text>}
+            rightContent={<Text>1.0.0</Text>}
           />
         </SettingsPage>
       </View>

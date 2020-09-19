@@ -12,9 +12,10 @@ export const globalSlice = createSlice({
   name: 'global',
   initialState: {
     androidClientId: '353507777246-q9hud32c3brbudlk47que2p3rcg5dr6f.apps.googleusercontent.com',
-    loginResult: {},
+    loginResult: { isLoading: true },
     subletData: [],
     isLoggingIn: false,
+    jwt: '',
   },
   reducers: {
     setLoginResult: (state, action) => {
@@ -26,10 +27,32 @@ export const globalSlice = createSlice({
     toggleIsLoggingIn: (state, action) => {
       state.isLoggingIn = !state.isLoggingIn;
     },
+    setJWT: (state, action) => {
+      state.jwt = action.payload;
+    },
   },
 });
+export const {
+  setLoginResult, appendSublet, toggleIsLoggingIn, setJWT,
+} = globalSlice.actions;
 
-export const { setLoginResult, appendSublet, toggleIsLoggingIn } = globalSlice.actions;
+export const getJWT = (token, email) => {
+  return async (dispatch, getState) => {
+    axios.post(API_ROOT + API_SIGNIN, { accessToken: token }).then((res) => {
+      console.log(res);
+      dispatch(setJWT(res.body.jwt));
+    }).catch((err) => {
+      console.log(err);
+      axios.post(API_ROOT + API_SIGNUP, { accessToken: token, email }).then((res2) => {
+        dispatch(setJWT(res2.body.jwt));
+        console.log('signed up', res2);
+      }).catch((err2) => {
+        console.log(err);
+      });
+    });
+    console.log('IN GET JWT', token, email);
+  };
+};
 
 export const signIn = () => {
   // the inside "thunk function"
@@ -42,17 +65,7 @@ export const signIn = () => {
         // iosClientId: YOUR_CLIENT_ID_HERE,  <-- if you use iOS
         scopes: ['profile', 'email'],
       });
-      axios.post(API_ROOT + API_SIGNIN, { accessToken: result.accessToken }).then((res) => {
-        AsyncStorage.setItem('jwt', JSON.stringify(res.data.jwt));
-      }).catch((err) => {
-        console.log(err);
-        axios.post(API_ROOT + API_SIGNUP, { accessToken: result.accessToken, email: result.user.email }).then((res2) => {
-          AsyncStorage.setItem('jwt', JSON.stringify(res2.data.jwt));
-          console.log('signed up', res2);
-        }).catch((err2) => {
-          console.log(err);
-        });
-      });
+      console.log(result);
       if (result.type === 'success') {
         AsyncStorage.setItem('LOGIN_RESULT_VALUE', JSON.stringify(result));
         dispatch(setLoginResult(result));

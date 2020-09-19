@@ -6,13 +6,19 @@ import store from './src/redux/store';
 
 import MainTabBar from './src/navigation/navbar';
 import Login from './src/components/login';
-import { setLoginResult } from './src/redux/globalSlice';
+import { setLoginResult, getJWT } from './src/redux/globalSlice';
 
 const App = () => {
   const dispatch = useDispatch();
   const readLoginFromStorage = async () => {
-    const item = await AsyncStorage.getItem('LOGIN_RESULT_VALUE');
-    dispatch(setLoginResult(JSON.parse(item)));
+    let item = await AsyncStorage.getItem('LOGIN_RESULT_VALUE');
+    if (item) {
+      item = JSON.parse(item);
+      dispatch(getJWT(item.accessToken, item.email));
+      dispatch(setLoginResult(item));
+    } else {
+      item = { isLoading: false };
+    }
   };
 
   React.useEffect(() => {
@@ -21,7 +27,8 @@ const App = () => {
 
   const login = useSelector((state) => state.global.loginResult);
 
-  const displayComponent = (login && login.type === 'success') ? (<MainTabBar />) : (<Login />);
+  let displayComponent = (login && login.type === 'success') ? (<MainTabBar />) : (<Login />);
+  displayComponent = login && !login.isLoading ? displayComponent : <></>;
 
   return (
     <>
