@@ -14,10 +14,10 @@ const App = () => {
     let item = await AsyncStorage.getItem('LOGIN_RESULT_VALUE');
     if (item) {
       item = JSON.parse(item);
-      dispatch(getJWT(item.accessToken, item.email));
+      dispatch(getJWT(item.accessToken, item.user.email));
       dispatch(setLoginResult(item));
     } else {
-      item = { isLoading: false };
+      item = { isLoading: true };
     }
   };
 

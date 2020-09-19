@@ -2,7 +2,7 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { AntDesign } from '@expo/vector-icons'; // react-native-vector-icons/FontAwesome';
-import Home from '../components/Home/home';
+import HomeNavigator from './homeNavigator';
 import LikedNavigator from './likedNavigator';
 import SettingsNavigator from './settingsNavigator';
 
@@ -24,7 +24,7 @@ const MainTabBar = () => {
           ({ route }) => ({
             tabBarIcon: ({ focused }) => {
               // This whole function tells the Tab.Navigator which icons belong to which tab
-              let iconName = '?';
+              let iconName;
 
               // Customize the icon we display based on the tab route
               if (route.name === 'Home') {
@@ -45,7 +45,7 @@ const MainTabBar = () => {
         {
         // These correspond to the different comonents rendered in each screen
         }
-        <Tab.Screen name="Home" component={Home} />
+        <Tab.Screen name="Home" component={HomeNavigator} />
         <Tab.Screen name="Liked" component={LikedNavigator} />
         <Tab.Screen name="Settings" component={SettingsNavigator} />
       </Tab.Navigator>

@@ -4,12 +4,11 @@ import {
   View,
   Platform,
 } from 'react-native';
+import { Image } from 'react-native-elements';
 import Constants from 'expo-constants';
 import Swiper from 'react-native-deck-swiper';
-import { useSelector, useDispatch } from 'react-redux';
-import { callForNextBatch } from './homeSlice';
 
-import Card from './card';
+import Icons from './icons';
 
 const dummyTempSublet = (owner) => ({
   address: '12345 First St. New York, NY 11111',
@@ -26,17 +25,19 @@ const dummyTempSublet = (owner) => ({
   ],
 });
 
-const Home = () => {
-  const [cards, setCards] = React.useState([undefined]);
-  const [swiper, setSwiper] = React.useState([undefined]);
+const Home = (props) => {
+  const [cards, setCards] = React.useState([dummyTempSublet('a'), dummyTempSublet('a'), dummyTempSublet('a')]);
+  const [swiper, setSwiper] = React.useState(undefined);
+
+  const getFeedItemsAsync = () => {
+    return Promise.resolve([dummyTempSublet('a'), dummyTempSublet('a'), dummyTempSublet('a')]);
+  };
 
   const fetchNextCards = () => {
     getFeedItemsAsync().then((items) => {
       if (items !== null) {
-        this.setState({
-          cards: items,
-        });
-        this.swiper.jumpToCardIndex(0); // this makes everything work
+        setCards(items);
+        swiper.jumpToCardIndex(0); // this makes everything work
       }
     });
   };
@@ -46,26 +47,28 @@ const Home = () => {
   };
 
   React.useEffect(() => {
-    fetchNextCards();
+    // fetchNextCards();
   }, []);
 
   const styles = StyleSheet.create({
     container: {
       flex: 1,
+      flexDirection: 'column',
+      justifyContent: 'flex-end',
+      backgroundColor: '#C1DCE7',
       marginTop: Constants.statusBarHeight,
     },
     card: {
       flex: 1,
-      borderRadius: 4,
-      borderWidth: 2,
-      borderColor: '#E8E8E8',
       justifyContent: 'center',
-      backgroundColor: 'whitesmoke',
+      backgroundColor: 'rgba(0,0,0,0)',
+      marginTop: 0,
+      paddingTop: 0,
     },
-    text: {
-      textAlign: 'center',
-      fontSize: 50,
-      backgroundColor: 'transparent',
+    image: {
+      borderRadius: 25,
+      height: '100%',
+      width: '100%',
     },
   });
 
@@ -81,17 +84,28 @@ const Home = () => {
             if (!sublet) { return <></>; }
             return (
               <View style={styles.card}>
-                <Card mainImg={sublet.mainImg} owner={sublet.owner} />
+                <Image
+                  source={{ uri: sublet.mainImg.uri }}
+                  style={styles.image}
+                  resizeMode="cover"
+                />
               </View>
             );
           }}
-          onSwiped={(cardIndex) => {
-            setCards([...cards, dummyTempSublet('h')]);
-          }}
+          cardVerticalMargin={15}
+          cardHorizontalMargin={15}
+          marginBottom={29}
+          onTapCard={(index) => props.navigation.navigate('Home', { screen: 'HomeDetail', params: cards[index] })}
+          onSwiped={(cardIndex) => {}}
+          onSwipedAll={onSwipedAllCards}
           backgroundColor="#C1DCE7"
           stackSize={2}
+          swipeBackCard
           useViewOverflow={Platform.OS === 'ios'}
         />
+        <View style={{ marginBottom: '20%' }}>
+          <Icons />
+        </View>
       </View>
     </>
   );

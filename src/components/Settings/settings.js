@@ -23,26 +23,25 @@ import {
   API_ROOT, API_SUBLET,
 } from '../../configs';
 
-function heartClicked() {
-  console.log('JWT is', jwt);
-  heartStatus(!heart);
-  const sublet = {
-    title: 'test sublet title',
-    address: 'test sublet address',
-    description: 'This is a test sublet',
-    bathrooms: 1,
-    price: 500,
-    footage: 100,
-    bedrooms: 100,
-  };
-  axios.post(API_ROOT + API_SUBLET, sublet, { headers: { authorization: jwt } }).then((res) => {
-    console.log(res);
-  }).catch((err) => {
-    console.log(err);
-  });
-}
-
 export default (props) => {
+  const jwt = useSelector((state) => state.global.jwt);
+  const heartClicked = () => {
+    console.log('JWT is', jwt);
+    const sublet = {
+      title: 'test sublet title',
+      address: 'test sublet address',
+      description: 'This is a test sublet',
+      bathrooms: 1,
+      price: 500,
+      footage: 100,
+      bedrooms: 100,
+    };
+    axios.post(API_ROOT + API_SUBLET, sublet, { headers: { authorization: jwt } }).then((res) => {
+      console.log(res);
+    }).catch((err) => {
+      console.log(err);
+    });
+  };
   const styles = StyleSheet.create({
     container: {
       flex: 1,
