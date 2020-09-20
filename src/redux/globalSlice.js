@@ -14,7 +14,7 @@ export const globalSlice = createSlice({
   name: 'global',
   initialState: {
     loginResult: { isLoading: true },
-    subletData: [],
+    allSublets: [],
     isLoggingIn: false,
     jwt: '',
     location: {
@@ -31,8 +31,8 @@ export const globalSlice = createSlice({
     setIsLoading: (state, action) => {
       state.loginResult.isLoading = action.payload;
     },
-    appendSublet: (state, action) => {
-      state.subletData.push(action.payload);
+    setAllSublets: (state, action) => {
+      state.allSublets = action.payload;
     },
     toggleIsLoggingIn: (state, action) => {
       state.isLoggingIn = !state.isLoggingIn;
@@ -46,7 +46,7 @@ export const globalSlice = createSlice({
   },
 });
 export const {
-  setLoginResult, appendSublet, toggleIsLoggingIn, setJWT, setIsLoading, setLocation,
+  setLoginResult, setAllSublets, toggleIsLoggingIn, setJWT, setIsLoading, setLocation,
 } = globalSlice.actions;
 
 export const loadStateFromBackend = () => {
@@ -57,10 +57,11 @@ export const loadStateFromBackend = () => {
     const jwtToken = getState().global.jwt;
     const initState = await initialState(userEmail, jwtToken);
     console.log(initState);
-    // dispatch(setliked(initState.data.liked));
-    // dispatch(pushNextSublets(initState.data.home));
-    // dispatch(setCurrentSublet(initState.data.home[0]));
-    // dispatch(setAdded(initState.data.added));
+    dispatch(setliked(initState.data.liked));
+    dispatch(pushNextSublets(initState.data.home));
+    dispatch(setCurrentSublet(initState.data.home[0]));
+    dispatch(setAdded(initState.data.added));
+    dispatch(setAllSublets(initState.data.all));
   };
 };
 
