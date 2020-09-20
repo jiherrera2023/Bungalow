@@ -7,8 +7,8 @@ import {
   ScrollView,
   Platform,
   ImageBackground,
-  ImageStore,
 } from 'react-native';
+import * as FileSystem from 'expo-file-system';
 import {
   Slider, Input, Text, Button, Icon, Badge,
 } from 'react-native-elements';
@@ -51,18 +51,25 @@ const styles = StyleSheet.create({
 
 const uploadImagesToImgur = async (images) => {
   const auth = 'Client-ID cd419a05267203b';
+  console.log('starting imgur upload', images);
+  const rawImages = [];
 
-  const rawImages = images.map(async (item, i) => {
-    await new Promise((resolve, reject) => {
-      return ImageStore.getBase64ForTag(item.image, (data) => {
-        resolve(data);
-      });
-    });
+  async function asyncForEach(array, callback) {
+    for (let index = 0; index < array.length; index++) {
+      // eslint-disable-next-line
+      await callback(array[index], index, array);
+    }
+  }
+  await asyncForEach(images, async (item) => {
+    await FileSystem.readAsStringAsync(item.image, { encoding: 'base64' }).then((res) => {
+      rawImages.push(res);
+    }).catch((err) => { console.log(err); });
   });
 
+  console.log('rawImages', rawImages);
   const imageUrls = [];
 
-  await rawImages.forEach(async (item, i) => {
+  await asyncForEach(rawImages, async (item, i) => {
     const formData = new FormData();
     formData.append('upload', {
       image: item,
@@ -75,11 +82,14 @@ const uploadImagesToImgur = async (images) => {
         Authorization: auth,
         Accept: 'application/json',
       },
+    }).catch((err) => {
+      console.log('fetch error:', err);
     });
-
     const imgUrl = `https://imgur.com/gallery/${result.data.id}`;
 
     imageUrls.push(imgUrl);
+  }).catch((err) => {
+    console.log(err);
   });
   return imageUrls;
 };
@@ -114,10 +124,7 @@ const addSublet = () => {
     return new Date().getTime();
   };
   function deleteImage(uri) {
-    console.log('code', uri);
-    console.log('previous', images);
     const deleted = images.filter((item) => item.key !== uri);
-    console.log('delete', deleted);
     setImages(deleted);
   }
   const _pickImage = async () => {
@@ -138,11 +145,8 @@ const addSublet = () => {
           key: generatedKey,
           image: result.uri,
         }];
-        console.log('updatedNewImages', newImages);
         setImages(newImages);
-        console.log('newImages', newImages);
       }
-      console.log(result);
     } catch (E) {
       console.log(E);
     }
@@ -152,7 +156,7 @@ const addSublet = () => {
     if (Platform.OS !== 'web') {
       const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
       if (status !== 'granted') {
-        alert('Sorry, we need camera roll permissions to make this work!');
+        console.log('Sorry, we need camera roll permissions to make this work!');
       }
     }
   };
@@ -182,6 +186,15 @@ const addSublet = () => {
     }
     console.log('submit');
     setErrors(errors);
+    if (errors.length !== 0) {
+      return false;
+    }
+    uploadImagesToImgur(images).then((res) => {
+      console.log('upload links', res);
+    }).catch((err) => {
+      console.log('upload link err:', err);
+    });
+    return true;
   }
   async function onChangeDestination(destination, latitude, longitude) {
     const apiUrl = `https://maps.googleapis.com/maps/api/place/autocomplete/json?key=AIzaSyDgZGG4nGHkc1KUVns-69jzSCgSvbCFJNg&input=${destination}&location=${latitude},${longitude}`;
@@ -403,6 +416,7 @@ const addSublet = () => {
           (error) => {
             return (
               <Badge value={error}
+                key={error}
                 status="primary"
                 badgeStyle={{
                   padding: 10,
