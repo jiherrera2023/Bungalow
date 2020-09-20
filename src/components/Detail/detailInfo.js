@@ -69,7 +69,7 @@ export default (props) => {
       </View>
       <View style={styles.infoContainer}>
         <Text style={styles.header}>Owner</Text>
-        <Text style={styles.contact}>{subletData.owner}</Text>
+        <Text style={styles.contact}>{subletData.name}</Text>
         <Text style={styles.header}>Phone</Text>
         <Text style={styles.contact}>{subletData.phone}</Text>
         <Text style={styles.header}>Email</Text>

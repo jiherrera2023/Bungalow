@@ -1,51 +1,10 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import MapView, { Marker } from 'react-native-maps';
 import {
   StyleSheet, View, Dimensions,
 } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
-import getSublets from '../../api/api';
-
-const testSublet = [
-  {
-    _id: { $oid: '5f65a79d4a876d0038594aaf' },
-    images: ['https://i.imgur.com/xBiHUyE.jpg'],
-    title: 'Ttt',
-    address: 'V V Spa, Bellaire Boulevard, Houston, TX, USA',
-    description: 'Ccf',
-    bathrooms: { $numberInt: '4' },
-    price: { $numberInt: '888' },
-    footage: { $numberInt: '88' },
-    phone: '899',
-    email: 'vyliu19@mail.strakejesuit.org',
-    name: 'Vincent Liu',
-    latitude: 29.7046637,
-    longitude: -95.49107289999999,
-    uid: '5f65a79d4a876d0038594aaf',
-    createdAt: { $date: { $numberLong: '1600497565302' } },
-    updatedAt: { $date: { $numberLong: '1600497565302' } },
-    __v: { $numberInt: '0' },
-  },
-  {
-    _id: { $oid: '5f65bb924a876d0038594ab0' },
-    images: ['https://i.imgur.com/ewjxELw.jpg'],
-    title: 'Test',
-    address: 'JDH Property Management Co, East Freeway Service Road, Channelview, TX, USA',
-    description: 'Yest',
-    bathrooms: { $numberInt: '3' },
-    price: { $numberInt: '56565' },
-    footage: { $numberInt: '899595' },
-    phone: '959595',
-    email: 'vyliu19@mail.strakejesuit.org',
-    name: 'Vincent Liu',
-    latitude: 29.7746821,
-    longitude: -95.14251399999999,
-    uid: '5f65bb924a876d0038594ab0',
-    createdAt: { $date: { $numberLong: '1600502674726' } },
-    updatedAt: { $date: { $numberLong: '1600502674726' } },
-    __v: { $numberInt: '0' },
-  },
-];
+import { setLongitude, setLatitude } from './mapSlice';
 
 const styles = StyleSheet.create({
   container: {
@@ -61,41 +20,41 @@ const styles = StyleSheet.create({
 });
 
 const Map = (props) => {
-  const location = useSelector((state) => state.global.location);
+  const dispatch = useDispatch();
   const sublets = useSelector((state) => state.global.allSublets);
-  const [region, setRegion] = React.useState({
-    latitude: location.coords.latitude,
-    longitude: location.coords.longitude,
-    latitudeDelta: 0.0922,
-    longitudeDelta: 0.0421,
-  });
-  console.log(location);
-  console.log(sublets);
+  const latitude = useSelector((state) => state.map.latitude);
+  const longitude = useSelector((state) => state.map.longitude);
+  console.log(latitude, longitude);
   return (
     <View style={styles.container}>
       <MapView style={styles.mapStyle}
         loadingEnabled
-        initialRegion={region}
-        region={region}
+        initialRegion={
+        {
+          latitude: latitude,
+          longitude: longitude,
+          latitudeDelta: 0.0922,
+          longitudeDelta: 0.0421,
+        }
+        }
+        region={{
+          latitude: latitude,
+          longitude: longitude,
+          latitudeDelta: 0.0922,
+          longitudeDelta: 0.0421,
+        }}
       >
         {sublets.map((marker) => (
           <Marker
             coordinate={{ latitude: marker.latitude, longitude: marker.longitude }}
             title={marker.title}
             onCalloutPress={() => {
-              props.navigation.navigate('Home', { screen: 'HomeDetail', params: marker });
+              props.navigation.navigate('Map', { screen: 'MapDetail', params: marker });
             }}
-            region={region}
-            onRegionChange={(newRegion) => {
-              setRegion(newRegion);
-            }}
+
             onPress={() => {
-              setRegion({
-                latitude: marker.latitude,
-                longitude: marker.longitude,
-                latitudeDelta: region.latitudeDelta,
-                longitudeDelta: region.longitudeDelta,
-              });
+              dispatch(setLatitude(marker.latitude));
+              dispatch(setLongitude(marker.longitude));
             }}
             description={marker.description}
             key={marker.uid}

@@ -10,7 +10,7 @@ import Constants from 'expo-constants';
 import Swiper from 'react-native-deck-swiper';
 
 import { useSelector, useDispatch } from 'react-redux';
-import { callForNextBatch, setHeart } from './homeSlice';
+import { callForNextBatch, setHeart, setCurrentSublet } from './homeSlice';
 
 import { postSeenSublet } from '../../api/api';
 
@@ -113,7 +113,8 @@ const Home = (props) => {
                       setCurrentIndex(cardIndex + 1);
                     }
                     postSeenSublet(cards[currentIndex].id, email, jwt);
-                    dispatch(setHeart({ isEmpty: true, sublet: cards[currentIndex + 1] }));
+                    dispatch(setHeart(true));
+                    dispatch(setCurrentSublet(cards[currentIndex + 1]));
                   }}
                   backgroundColor="#C1DCE7"
                   stackSize={2}
@@ -121,7 +122,7 @@ const Home = (props) => {
                   useViewOverflow={Platform.OS === 'ios'}
                 />
                 <View style={{ marginBottom: '20%' }}>
-                  <Icons sublet={cards[currentIndex]} />
+                  <Icons sublet={cards[currentIndex]} navigation={props.navigation} />
                 </View>
               </>
             )

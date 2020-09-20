@@ -7,7 +7,7 @@ import * as Location from 'expo-location';
 import { setliked } from '../components/Liked/likedSlice';
 import { pushNextSublets, setCurrentSublet } from '../components/Home/homeSlice';
 import { setAdded } from '../components/Added/addedSlice';
-
+import { setLatitude, setLongitude } from '../components/Map/mapSlice';
 import { initialState, callJWT, loginGoogle } from '../api/api';
 
 export const globalSlice = createSlice({
@@ -81,6 +81,9 @@ export const getLocationOnStartup = (token) => {
     }
 
     const position = await Location.getCurrentPositionAsync({});
+    console.log('got position', position);
+    dispatch(setLatitude(position.coords.latitude));
+    dispatch(setLongitude(position.coords.longitude));
     await dispatch(setLocation(position));
   };
 };
