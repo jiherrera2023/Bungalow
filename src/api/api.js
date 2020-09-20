@@ -25,26 +25,32 @@ import {
 } from './configs';
 
 const initialState = async (userEmail, jwtToken) => {
-  return axios.post(API_ROOT + API_LOAD_INITIAL_STATE, { email: userEmail, amount: 15 }, { headers: { authorization: jwtToken } }).catch((err) => {
+  const res = await axios.post(API_ROOT + API_LOAD_INITIAL_STATE, { email: userEmail, amount: 15 }, { headers: { authorization: jwtToken } }).catch((err) => {
     console.log('Init State Load Failed', err);
   });
+
+  return res.data;
 };
 
 const getSublets = async (jwt) => {
-  return axios.get(API_ROOT + API_POST_SUBLET, {
+  const res = await axios.get(API_ROOT + API_POST_SUBLET, {
     headers: {
       authorization: jwt,
     },
   }).catch((err) => {
     console.log('Error in Backend Post Sublet', err);
   });
+
+  return res.data;
 };
 
 const callJWT = async (token, email) => {
   // TODO: Merge these into one API call. Add Referesh token functionality
-  return axios.post(API_ROOT + API_ACCESS, { accessToken: token, email: email }).catch((err) => {
+  const res = await axios.post(API_ROOT + API_ACCESS, { accessToken: token, email: email }).catch((err) => {
     console.log('Failed to retieive jwt token: ', err);
   });
+
+  return res.data.jwt;
 };
 
 const loginGoogle = async () => {
@@ -86,7 +92,7 @@ const uploadImagesToImgur = async (imagesToUpload) => {
 };
 
 const postSublet = async (sublet, jwt) => {
-  return axios.post(API_ROOT + API_POST_SUBLET, {
+  const res = await axios.post(API_ROOT + API_POST_SUBLET, {
     title: sublet.title,
     address: sublet.address,
     description: sublet.description,
@@ -107,56 +113,68 @@ const postSublet = async (sublet, jwt) => {
   }).catch((err) => {
     console.log('Error in Backend Post Sublet', err);
   });
+
+  return res.data;
 };
 
 const postSeenSublet = async (subletId, jwt) => {
-  return axios.post(API_ROOT + API_POST_SEEN, { id: subletId, timestamp: Date.now() }, {
+  const res = await axios.post(API_ROOT + API_POST_SEEN, { id: subletId, timestamp: Date.now() }, {
     headers: {
       authorization: jwt,
     },
   }).catch((err) => {
     console.log('Error in Backend Post Sublet', err);
   });
+
+  return res.data;
 };
 
 const postLikedSublet = async (subletId, jwt) => {
-  return axios.post(API_ROOT + API_POST_LIKED, { id: subletId, timestamp: Date.now() }, {
+  const res = await axios.post(API_ROOT + API_POST_LIKED, { id: subletId, timestamp: Date.now() }, {
     headers: {
       authorization: jwt,
     },
   }).catch((err) => {
     console.log('Error in Backend Post Sublet', err);
   });
+
+  return res.data;
 };
 
 const removeLikedSublet = async (subletId, jwt) => {
-  return axios.post(API_ROOT + API_REMOVE_LIKED, { id: subletId, timestamp: Date.now() }, {
+  const res = await axios.post(API_ROOT + API_REMOVE_LIKED, { id: subletId, timestamp: Date.now() }, {
     headers: {
       authorization: jwt,
     },
   }).catch((err) => {
     console.log('Error in Backend Post Sublet', err);
   });
+
+  return res.data;
 };
 
-const removePostedSublet = async (subletId, jwt) => {
-  return axios.post(API_ROOT + API_REMOVE_POST, subletId, {
+const removePostedSublet = async (id, jwt) => {
+  const res = await axios.post(API_ROOT + API_REMOVE_POST, { id }, {
     headers: {
       authorization: jwt,
     },
   }).catch((err) => {
     console.log('Error in Backend Post Sublet', err);
   });
+
+  return res.data;
 };
 
 const callForHomeSublets = async (email, jwt, quantity) => {
-  return axios.post(API_ROOT + API_CALL_NEXT_BATCH, { email, quantity: quantity || 10 }, {
+  const res = await axios.post(API_ROOT + API_CALL_NEXT_BATCH, { email, quantity: quantity || 10 }, {
     headers: {
       authorization: jwt,
     },
   }).catch((err) => {
     console.log('Error in Backend Post Sublet', err);
   });
+
+  return res.data;
 };
 
 export {

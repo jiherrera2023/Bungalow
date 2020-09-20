@@ -159,8 +159,8 @@ const addSublet = ({ navigation }) => {
       title, address, description, bathroom, price, footage, bedroom, phone, imageUrls, email: userInfo.email, name: userInfo.name, latitude: coordinates.lat, longitude: coordinates.lng,
     }, jwt);
 
-    console.log('posted sublet is', postedSublet.data);
-    dispatch(addToAdded(postedSublet.data));
+    console.log('posted sublet is', postedSublet);
+    dispatch(addToAdded(postedSublet));
     navigation.navigate('Added', { screen: 'AddedList' });
     dispatch(setBedroom(0));
     dispatch(setAddress(''));

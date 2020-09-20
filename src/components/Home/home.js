@@ -71,52 +71,60 @@ const Home = (props) => {
   return (
     <>
       <View style={styles.container}>
-        <Swiper
-          ref={(s) => {
-            setSwiper(s);
-          }}
-          cards={cards}
-          renderCard={(sublet) => {
-            if (!sublet) { return <></>; }
-            return (
-              <View style={styles.card}>
-                <Image
-                  source={{ uri: sublet.images[0] }}
-                  style={styles.image}
-                  resizeMode="cover"
-                  transition={false}
-                >
-                  <View />
-                  <View style={styles.textWrapper}>
-                    <Text style={styles.text}>{sublet.title}</Text>
-                    <Text style={styles.text}>${sublet.price} mo.</Text>
-                  </View>
-                </Image>
-              </View>
-            );
-          }}
-          cardVerticalMargin={15}
-          cardHorizontalMargin={15}
-          marginBottom={29}
-          onTapCard={(index) => props.navigation.navigate('Home', { screen: 'HomeDetail', params: cards[index] })}
-          onSwiped={(cardIndex) => {
-            if ((cardIndex + 1) % (cards.length - 2) === 0) {
-              onSwipedThirdToLastCard();
-              setCurrentIndex(0);
-            } else {
-              setCurrentIndex(cardIndex + 1);
-            }
-            postSeenSublet(cards[currentIndex].id, jwt);
-            dispatch(setCurrentSublet(cards[currentIndex + 1]));
-          }}
-          backgroundColor="#C1DCE7"
-          stackSize={2}
-          swipeBackCard
-          useViewOverflow={Platform.OS === 'ios'}
-        />
-        <View style={{ marginBottom: '20%' }}>
-          <Icons sublet={cards[currentIndex]} />
-        </View>
+        {
+          cards.length === 0
+            ? <></>
+            : (
+              <>
+                <Swiper
+                  ref={(s) => {
+                    setSwiper(s);
+                  }}
+                  cards={cards}
+                  renderCard={(sublet) => {
+                    if (!sublet) { return <></>; }
+                    return (
+                      <View style={styles.card}>
+                        <Image
+                          source={{ uri: sublet.images[0] }}
+                          style={styles.image}
+                          resizeMode="cover"
+                          transition={false}
+                        >
+                          <View />
+                          <View style={styles.textWrapper}>
+                            <Text style={styles.text}>{sublet.title}</Text>
+                            <Text style={styles.text}>${sublet.price} mo.</Text>
+                          </View>
+                        </Image>
+                      </View>
+                    );
+                  }}
+                  cardVerticalMargin={15}
+                  cardHorizontalMargin={15}
+                  marginBottom={29}
+                  onTapCard={(index) => props.navigation.navigate('Home', { screen: 'HomeDetail', params: cards[index] })}
+                  onSwiped={(cardIndex) => {
+                    if ((cardIndex + 1) % (cards.length - 2) === 0) {
+                      onSwipedThirdToLastCard();
+                      setCurrentIndex(0);
+                    } else {
+                      setCurrentIndex(cardIndex + 1);
+                    }
+                    postSeenSublet(cards[currentIndex].id, jwt);
+                    dispatch(setCurrentSublet(cards[currentIndex + 1]));
+                  }}
+                  backgroundColor="#C1DCE7"
+                  stackSize={2}
+                  swipeBackCard
+                  useViewOverflow={Platform.OS === 'ios'}
+                />
+                <View style={{ marginBottom: '20%' }}>
+                  <Icons sublet={cards[currentIndex]} />
+                </View>
+              </>
+            )
+        }
       </View>
     </>
   );

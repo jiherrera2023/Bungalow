@@ -56,19 +56,19 @@ export const loadStateFromBackend = () => {
     const userEmail = getState().global.loginResult.user.email;
     const jwtToken = getState().global.jwt;
     const initState = await initialState(userEmail, jwtToken);
-    console.log(initState);
-    dispatch(setliked(initState.data.liked));
-    dispatch(pushNextSublets(initState.data.home));
-    dispatch(setCurrentSublet(initState.data.home[0]));
-    dispatch(setAdded(initState.data.added));
-    dispatch(setAllSublets(initState.data.all));
+
+    dispatch(setliked(initState.liked));
+    dispatch(pushNextSublets(initState.home));
+    dispatch(setCurrentSublet(initState.home[0]));
+    dispatch(setAdded(initState.added));
+    dispatch(setAllSublets(initState.all));
   };
 };
 
 export const getJWT = (token, email) => {
   return async (dispatch, getState) => {
     const res = await callJWT(token, email);
-    dispatch(setJWT(res.data.jwt));
+    dispatch(setJWT(res));
     dispatch(setIsLoading(false));
   };
 };
