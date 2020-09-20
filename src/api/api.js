@@ -22,6 +22,7 @@ import {
   API_CALL_NEXT_BATCH,
   imgurAuth,
   androidClientId,
+  API_UPDATE_FILTERS,
 } from './configs';
 
 const initialState = async (userEmail, jwtToken) => {
@@ -177,6 +178,18 @@ const callForHomeSublets = async (email, jwt, quantity) => {
   return res.data;
 };
 
+const updateUserFilters = async (filters, jwt) => {
+  const res = await axios.post(API_ROOT + API_UPDATE_FILTERS, filters, {
+    headers: {
+      authorization: jwt,
+    },
+  }).catch((err) => {
+    console.log('Error in Backend Post Sublet', err);
+  });
+
+  return res.data;
+};
+
 export {
   initialState,
   callJWT,
@@ -189,4 +202,5 @@ export {
   removePostedSublet,
   callForHomeSublets,
   getSublets,
+  updateUserFilters,
 };
