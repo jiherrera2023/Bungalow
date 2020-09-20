@@ -27,7 +27,7 @@ const initialState = async (userEmail, jwtToken) => {
   });
 };
 
-const callJWT = async (token, email, dispatch) => {
+const callJWT = async (token, email) => {
   // TODO: Merge these into one API call. Add Referesh token functionality
   return axios.post(API_ROOT + API_ACCESS, { accessToken: token, email: email }).catch((err) => {
     console.log('Failed to retieive jwt token: ', err);
@@ -35,10 +35,12 @@ const callJWT = async (token, email, dispatch) => {
 };
 
 const loginGoogle = async (clientId) => {
-  Google.logInAsync({
+  return Google.logInAsync({
     androidClientId: clientId,
     // iosClientId: YOUR_CLIENT_ID_HERE,  <-- if you use iOS
     scopes: ['profile', 'email'],
+  }).catch((err) => {
+    console.log('Login Error From Google: ', err);
   });
 };
 

@@ -52,14 +52,14 @@ export const loadStateFromBackend = () => {
     // TODO: save state to homeslice, likedSlice, and addedSlice
     const userEmail = getState().global.loginResult.user.email;
     const jwtToken = getState().global.jwt;
-    const initState = initialState(userEmail, jwtToken);
+    const initState = await initialState(userEmail, jwtToken);
     console.log(initState);
   };
 };
 
 export const getJWT = (token, email) => {
   return async (dispatch, getState) => {
-    const res = callJWT(token, email, dispatch);
+    const res = await callJWT(token, email);
     dispatch(setJWT(res.data.jwt));
     dispatch(setIsLoading(false));
   };

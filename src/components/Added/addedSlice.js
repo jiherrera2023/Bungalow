@@ -41,10 +41,11 @@ export const likedSlice = createSlice({
       state.bathroom = action.payload;
     },
     addImage: (state, action) => {
-      state.Images.push(action.payload);
+      state.images.push(action.payload);
+      console.log(state.Images);
     },
     setImages: (state, action) => {
-      state.Images = action.payload;
+      state.images = action.payload;
     },
     setPhone: (state, action) => {
       state.phone = action.payload;

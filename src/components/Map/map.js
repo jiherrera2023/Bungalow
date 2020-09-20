@@ -1,6 +1,8 @@
 import React from 'react';
-import { Text, View } from 'react-native';
-import { MapView } from 'expo';
+import MapView from 'react-native-maps';
+import {
+  StyleSheet, Text, View, Dimensions,
+} from 'react-native';
 
 const styles = StyleSheet.create({
   container: {
@@ -9,15 +11,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  mapStyle: {
+    width: Dimensions.get('window').width,
+    height: Dimensions.get('window').height,
+  },
 });
-const Map = () => {
-  return (
-    <MapView
-      style={styles.container}
-      showsUserLocation
-      showsMyLocationButton
-    />
-  );
-};
 
-export default Map;
+export default class App extends React.Component {
+  render() {
+    return (
+      <View style={styles.container}>
+        <MapView style={styles.mapStyle}
+          initialRegion={{
+            latitude: 37.78825,
+            longitude: -122.4324,
+            latitudeDelta: 0.0922,
+            longitudeDelta: 0.0421,
+          }}
+        />
+      </View>
+    );
+  }
+}

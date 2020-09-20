@@ -154,10 +154,19 @@ const addSublet = ({ navigation }) => {
     const postedSublet = await postSublet({
       title, address, description, bathroom, price, footage, bedroom, phone, imageUrls, email: userInfo.email, name: userInfo.name,
     }, jwt);
-
-    dispatch(addToLiked(postedSublet));
+    console.log('posted sublet is', postedSublet.data);
+    dispatch(addToLiked(postedSublet.data));
 
     navigation.navigate('Added', { screen: 'AddedList' });
+    dispatch(setBedroom(0));
+    dispatch(setAddress(''));
+    dispatch(setDescription(''));
+    dispatch(setBathroom(0));
+    dispatch(setImages([]));
+    dispatch(setPhone(''));
+    dispatch(setTitle(''));
+    dispatch(setFootage(''));
+    dispatch(setPrice(''));
     return true;
   }
   async function onChangeDestination(destination, latitude, longitude) {
@@ -165,6 +174,7 @@ const addSublet = ({ navigation }) => {
     try {
       const result = await fetch(apiUrl);
       const json = await result.json();
+      console.log(json.predictions);
       setLocationPredictions(json.predictions.slice(0, 3).map(
         (prediction) => (
           <TouchableHighlight
@@ -282,7 +292,10 @@ const addSublet = ({ navigation }) => {
         />
         <Slider
           value={bedroom}
-          onValueChange={(value) => dispatch(setBedroom(value))}
+          onValueChange={(value) => {
+            dispatch(setBedroom(value));
+            Keyboard.dismiss();
+          }}
           step={1}
           maximumValue={9}
           thumbTintColor="#249FF7"
@@ -302,7 +315,10 @@ const addSublet = ({ navigation }) => {
         </Text>
         <Slider
           value={bathroom}
-          onValueChange={(value) => dispatch(setBathroom(value))}
+          onValueChange={(value) => {
+            dispatch(setBathroom(value));
+            Keyboard.dismiss();
+          }}
           step={1}
           maximumValue={9}
           thumbTintColor="#249FF7"
