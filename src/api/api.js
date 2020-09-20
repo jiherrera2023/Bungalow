@@ -9,6 +9,7 @@
 import axios from 'axios';
 import * as Google from 'expo-google-app-auth';
 import * as FileSystem from 'expo-file-system';
+import * as AppAuth from 'expo-app-auth';
 
 import {
   API_ROOT,
@@ -24,6 +25,14 @@ import {
   androidClientId,
   API_UPDATE_FILTERS,
 } from './configs';
+
+// const postPreferences = async (preferences, jwtToken) => {
+//   const res = await axios.post(API_ROOT + API_UPDATE_PREFERENCES, preferences, { headers: { authorization: jwtToken } }).catch((err) => {
+//     console.log('Failed to retieive jwt token: ', err);
+//   });
+//   console.log('post preferences result', res);
+//   return res.data.jwt;
+// };
 
 const initialState = async (userEmail, jwtToken) => {
   const res = await axios.post(API_ROOT + API_LOAD_INITIAL_STATE, { email: userEmail, amount: 15 }, { headers: { authorization: jwtToken } }).catch((err) => {
@@ -45,13 +54,23 @@ const getSublets = async (jwt) => {
   return res.data;
 };
 
-const callJWT = async (token, email) => {
+export const refreshLoginToken = async (refreshToken) => {
+  const config = {
+    issuer: 'https://accounts.google.com',
+    clientId: androidClientId,
+    scopes: ['profile', 'email'],
+  };
+
+  return AppAuth.refreshAsync(config, refreshToken);
+};
+
+const callJWT = async (token, email, refreshToken) => {
   // TODO: Merge these into one API call. Add Referesh token functionality
   const res = await axios.post(API_ROOT + API_ACCESS, { accessToken: token, email: email }).catch((err) => {
-    console.log('Failed to retieive jwt token: ', err);
+    console.log('Failed to retieive jwt token. Attempting Refresh ', err);
   });
 
-  return res.data.jwt;
+  return res && res.data ? res.data.jwt : false;
 };
 
 const loginGoogle = async () => {
@@ -184,9 +203,9 @@ const updateUserFilters = async (filters, jwt) => {
       authorization: jwt,
     },
   }).catch((err) => {
-    console.log('Error in Backend Post Sublet', err);
+    console.log('Error in Backend Update Filters', err);
   });
-
+  console.log(res.data);
   return res.data;
 };
 

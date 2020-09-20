@@ -21,7 +21,7 @@ const App = () => {
     if (item) {
       item = JSON.parse(item);
       await dispatch(setLoginResult(item));
-      await dispatch(getJWT(item.accessToken, item.user.email));
+      await dispatch(getJWT(item.accessToken, item.user.email, item.refreshToken));
       await dispatch(loadStateFromBackend());
     } else {
       dispatch(setIsLoading(false));

@@ -2,7 +2,7 @@
 
 import { createSlice } from '@reduxjs/toolkit';
 
-export const likedSlice = createSlice({
+export const addedSlice = createSlice({
   name: 'added',
   initialState: {
     added: [],
@@ -63,6 +63,6 @@ export const likedSlice = createSlice({
 });
 export const {
   setAdded, addToAdded, removeFromAdded, setBedroom, setAddress, setDescription, setBathroom, setImages, setPhone, setTitle, setFootage, setPrice, addImage,
-} = likedSlice.actions;
+} = addedSlice.actions;
 
-export default likedSlice.reducer;
+export default addedSlice.reducer;

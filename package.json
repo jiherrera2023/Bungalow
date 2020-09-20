@@ -20,6 +20,7 @@
     "@reduxjs/toolkit": "^1.4.0",
     "axios": "^0.19.2",
     "expo": "^38.0.10",
+    "expo-app-auth": "~9.1.1",
     "expo-constants": "~9.1.1",
     "expo-file-system": "~9.0.1",
     "expo-google-app-auth": "^8.1.2",

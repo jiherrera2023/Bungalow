@@ -141,6 +141,7 @@ export default (props) => {
               name: 'book',
               type: 'font-awesome',
             }}
+            onPress={() => props.navigation.navigate('Settings', { screen: 'Preferences' })}
           />
         </SettingsPage>
       </View>

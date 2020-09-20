@@ -3,8 +3,7 @@ import MapView, { Marker } from 'react-native-maps';
 import {
   StyleSheet, View, Dimensions,
 } from 'react-native';
-import { useSelector, useDispatch } from 'react-redux';
-import { setLongitude, setLatitude } from './mapSlice';
+import { useSelector } from 'react-redux';
 
 const styles = StyleSheet.create({
   container: {
@@ -20,7 +19,6 @@ const styles = StyleSheet.create({
 });
 
 const Map = (props) => {
-  const dispatch = useDispatch();
   const sublets = useSelector((state) => state.global.allSublets);
   const latitude = useSelector((state) => state.map.latitude);
   const longitude = useSelector((state) => state.map.longitude);
@@ -33,15 +31,15 @@ const Map = (props) => {
         {
           latitude: latitude,
           longitude: longitude,
-          latitudeDelta: 0.0922,
-          longitudeDelta: 0.0421,
+          latitudeDelta: 1.5,
+          longitudeDelta: 1.5,
         }
         }
         region={{
           latitude: latitude,
           longitude: longitude,
-          latitudeDelta: 0.0922,
-          longitudeDelta: 0.0421,
+          latitudeDelta: 1.5,
+          longitudeDelta: 1.5,
         }}
       >
         {sublets.map((marker) => (
@@ -50,11 +48,6 @@ const Map = (props) => {
             title={marker.title}
             onCalloutPress={() => {
               props.navigation.navigate('Map', { screen: 'MapDetail', params: marker });
-            }}
-
-            onPress={() => {
-              dispatch(setLatitude(marker.latitude));
-              dispatch(setLongitude(marker.longitude));
             }}
             description={marker.description}
             key={marker.uid}

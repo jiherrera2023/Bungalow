@@ -4,6 +4,7 @@ import { WebView } from 'react-native-webview';
 import Constants from 'expo-constants';
 import Settings from '../components/Settings/settings';
 import ScreenOptions from './screenOptions';
+import Preferences from '../components/Settings/preferences';
 
 const Stack = createStackNavigator();
 
@@ -31,6 +32,7 @@ const SetingsNavigator = (props) => {
       <Stack.Screen name="SettingsList" component={Settings} />
       <Stack.Screen name="TermsAndConditions" component={TermsAndConditions} />
       <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicy} />
+      <Stack.Screen name="Preferences" component={Preferences} />
     </Stack.Navigator>
   );
 };

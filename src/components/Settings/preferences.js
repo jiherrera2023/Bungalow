@@ -1,22 +1,20 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import {
   StyleSheet,
   View,
-  TouchableHighlight,
   Keyboard,
   ScrollView,
-  Platform,
-  ImageBackground,
+  Dimensions,
 } from 'react-native';
-
+import MapView, { Marker, Circle } from 'react-native-maps';
 import {
-  Slider, Input, Text, Button, Icon, Badge,
+  Slider, Input, Text, Button, Badge,
 } from 'react-native-elements';
-import { useSelector, useDispatch } from 'react-redux';
-import * as ImagePicker from 'expo-image-picker';
-import * as Permissions from 'expo-permissions';
-
-import { uploadImagesToImgur, postSublet } from '../../api/api';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  setMinPrice, setBedroom, setMaxPrice, setLatitude, setBathroom, setLongitude, setRange, setFootage,
+} from './preferencesSlice';
+import { updateUserFilters } from '../../api/api';
 
 const styles = StyleSheet.create({
   container: {
@@ -24,140 +22,90 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     marginRight: 10,
   },
+  bedroom: {
+    marginTop: 20,
+    zIndex: 1,
+    marginLeft: 20,
+    marginRight: 20,
+  },
+  bathroom: {
+    marginTop: 20,
+    zIndex: 1,
+    marginLeft: 20,
+    marginRight: 20,
+  },
+  locationSuggestion: {
+    backgroundColor: 'white',
+    padding: 5,
+    fontSize: 18,
+    borderWidth: 0.5,
+    zIndex: 1,
+  },
+  locationCard: {
+    borderWidth: 0,
+  },
+  mapStyle: {
+    marginTop: 20,
+    width: Dimensions.get('window').width,
+    height: Dimensions.get('window').height * 0.5,
+  },
 });
 
 const preferences = ({ navigation }) => {
-  const [locationHeight, setLocationHeight] = React.useState(0);
-  const [locationPredictions, setLocationPredictions] = React.useState(null);
-  const [submitErrors, setErrors] = React.useState([]);
-  const [scrollView, setScrollView] = React.useState(null);
-
+  const dispatch = useDispatch();
+  const email = useSelector((state) => state.global.loginResult.user.email);
   const jwt = useSelector((state) => state.global.jwt);
-
-  function pressedPrediction(prediction) {
-    Keyboard.dismiss();
-    dispatch(setAddress(prediction.description));
-    setLocationPredictions(null);
-    setLocationHeight(0);
-  }
-  const generateKey = (pre) => {
-    return new Date().getTime();
-  };
-  function deleteImage(uri) {
-    const deleted = images.filter((item) => item.key !== uri);
-    dispatch(setImages(deleted));
-  }
-  const _pickImage = async () => {
-    try {
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.All,
-        allowsEditing: true,
-        quality: 1,
-      });
-      if (!result.cancelled) {
-        const generatedKey = generateKey(result.uri);
-        dispatch(addImage({
-          key: generatedKey,
-          image: result.uri,
-        }));
-      }
-    } catch (E) {
-      console.log(E);
-    }
-  };
-
-  const getPermissionAsync = async () => {
-    if (Platform.OS !== 'web') {
-      const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
-      if (status !== 'granted') {
-        console.log('Sorry, we need camera roll permissions to make this work!');
-      }
-    }
-  };
-  useEffect(() => {
-    // Update the document title using the browser API
-    getPermissionAsync();
-  });
-  async function submit() {
+  const minPrice = useSelector((state) => state.preferences.minPrice);
+  const maxPrice = useSelector((state) => state.preferences.maxPrice);
+  const footage = useSelector((state) => state.preferences.footage);
+  const bedroom = useSelector((state) => state.preferences.bedroom);
+  const bathroom = useSelector((state) => state.preferences.bathroom);
+  const latitude = useSelector((state) => state.preferences.latitude);
+  const longitude = useSelector((state) => state.preferences.longitude);
+  const range = useSelector((state) => state.preferences.range);
+  const sublets = useSelector((state) => state.global.allSublets);
+  const [submitErrors, setErrors] = React.useState([]);
+  const biggerBedroom = (bedroom > 8);
+  const biggerBathroom = (bathroom > 8);
+  const errorLength = (submitErrors.length > 0);
+  async function updatePreferences() {
     const errors = [];
-    if (title.localeCompare('') === 0) {
-      errors.push('title');
+    if (maxPrice === 0) {
+      errors.push('maxPrice');
     }
-    if (address.localeCompare('') === 0) {
-      errors.push('address');
+    if (maxPrice < minPrice) {
+      errors.push('max price must be higher than min price');
     }
-    if (description.localeCompare('') === 0) {
-      errors.push('description');
-    }
-    if (footage.localeCompare('') === 0) {
+    if (footage === 0) {
       errors.push('footage');
-    }
-    if (phone.localeCompare('') === 0) {
-      errors.push('phone');
-    }
-    if (images.length === 0) {
-      errors.push('images');
     }
     console.log('Pressed Submit');
     setErrors(errors);
     if (errors.length !== 0) {
       return false;
     }
-    const geocodeAPIUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${address}&key=AIzaSyDgZGG4nGHkc1KUVns-69jzSCgSvbCFJNg`;
-    const geoCodeResult = await fetch(geocodeAPIUrl);
-    const geoCodeJSON = await geoCodeResult.json();
-    const coordinates = geoCodeJSON.results[0].geometry.location;
-    console.log(geoCodeJSON.results[0].formatted_address);
-    console.log(coordinates);
-    const imageUrls = await uploadImagesToImgur(images);
-    const postedSublet = await postSublet({
-      title, address, description, bathroom, price, footage, bedroom, phone, imageUrls, email: userInfo.email, name: userInfo.name, latitude: coordinates.lat, longitude: coordinates.lng,
-    }, jwt);
-
-    console.log('posted sublet is', postedSublet);
-    dispatch(addToAdded(postedSublet));
-    navigation.navigate('Added', { screen: 'AddedList' });
-    dispatch(setBedroom(0));
-    dispatch(setAddress(''));
-    dispatch(setDescription(''));
-    dispatch(setBathroom(0));
-    dispatch(setImages([]));
-    dispatch(setPhone(''));
-    dispatch(setTitle(''));
-    dispatch(setFootage(''));
-    dispatch(setPrice(''));
+    console.log('about to post');
+    const toSendPreferences = {
+      email: email,
+      preferences: {
+        minPrice: minPrice,
+        maxPrice: maxPrice,
+        footage: footage,
+        bedroom: bedroom,
+        bathroom: bathroom,
+        latitude: latitude,
+        longitude: longitude,
+        range: range,
+      },
+    };
+    console.log(toSendPreferences);
+    updateUserFilters(toSendPreferences, jwt).then(() => {
+      navigation.navigate('Settings', { screen: 'SettingsList' });
+    });
     return true;
-  }
-  async function onChangeDestination(destination, latitude, longitude) {
-    const apiUrl = `https://maps.googleapis.com/maps/api/place/autocomplete/json?key=AIzaSyDgZGG4nGHkc1KUVns-69jzSCgSvbCFJNg&input=${destination}&location=${latitude},${longitude}`;
-    try {
-      const result = await fetch(apiUrl);
-      const json = await result.json();
-      console.log(json.predictions);
-      setLocationPredictions(json.predictions.slice(0, 3).map(
-        (prediction) => (
-          <TouchableHighlight
-            key={prediction.place_id}
-            onPress={() => pressedPrediction(prediction)}
-            keyboardShouldPersistTaps="handled"
-            style={styles.locationCard}
-          >
-            <Text style={styles.locationSuggestion}
-              keyboardShouldPersistTaps="handled"
-            >
-              {prediction.description}
-            </Text>
-          </TouchableHighlight>
-        ),
-      ));
-      setLocationHeight(100);
-    } catch (err) {
-      console.log(err);
-    }
   }
   return (
     <ScrollView
-      ref={(ref) => setScrollView(ref)}
       keyboardShouldPersistTaps="handled"
     >
       <View style={styles.container}>
@@ -169,84 +117,34 @@ const preferences = ({ navigation }) => {
         }
       }
         >
-          Tells us about your sublet!
+          What are your sublet preferences?
         </Text>
         <Input
-          placeholder="Enter Title"
-          value={title}
-          onChangeText={(value) => {
-            dispatch(setTitle(value));
-          }}
-        />
-        <Input
-          onBlur={() => {
-            setLocationPredictions(null);
-            setLocationHeight(0);
-          }}
-          onFocus={() => {
-            if (address.localeCompare('') !== 0) {
-              onChangeDestination(address, location.coords.latitude || 0, location.coords.longitude || 0);
-            }
-          }}
-          autoCompleteType="off"
-          placeholder="Enter Address"
-          onChangeText={(value) => {
-            dispatch(setAddress(value));
-            onChangeDestination(value, location.coords.latitude || 0, location.coords.longitude || 0);
-          }}
-          value={address}
-          style={
-          {
-            zIndex: 2,
-          }
-        }
-        />
-        <View
-          keyboardShouldPersistTaps="handled"
-          style={
-        {
-          position: 'relative',
-          zIndex: 2,
-          height: locationHeight,
-        }
-      }
-        >
-          {locationPredictions}
-        </View>
-        <Input
-          multiline
-          placeholder="Enter Description"
-          value={description}
-          onChangeText={(value) => {
-            dispatch(setDescription(value));
-          }}
-        />
-        <Input
-          placeholder="Enter Price"
-          value={price}
+          placeholder="Minimum Price"
+          value={minPrice === 0 ? '' : minPrice.toString()}
           leftIcon={{ type: 'font-awesome', name: 'dollar' }}
           keyboardType="numeric"
           onChangeText={(value) => {
-            dispatch(setPrice(value.toString().replace(/[^0-9]/g, '')));
+            dispatch(setMinPrice(parseInt(value.toString().replace(/[^0-9]/g, ''), 10)));
+            console.log(minPrice);
+          }}
+        />
+        <Input
+          placeholder="Maximum Price"
+          value={maxPrice === 0 ? '' : maxPrice.toString()}
+          leftIcon={{ type: 'font-awesome', name: 'dollar' }}
+          keyboardType="numeric"
+          onChangeText={(value) => {
+            dispatch(setMaxPrice(parseInt(value.toString().replace(/[^0-9]/g, ''), 10)));
           }}
         />
         <Input
           placeholder="Enter Square Footage"
-          value={footage}
+          value={footage === 0 ? '' : footage.toString()}
           keyboardType="numeric"
           rightIcon={{ type: 'font-awesome', name: 'home' }}
           onChangeText={(value) => {
-            dispatch(setFootage(value.toString().replace(/[^0-9]/g, '')));
-          }}
-        />
-        <Input
-          dataDetectorTypes="phoneNumber"
-          placeholder="Enter Phone Number"
-          value={phone}
-          leftIcon={{ type: 'font-awesome', name: 'phone' }}
-          keyboardType="numeric"
-          onChangeText={(value) => {
-            dispatch(setPhone(value.toString().replace(/[^0-9]/g, '')));
+            dispatch(setFootage(parseInt(value.toString().replace(/[^0-9]/g, ''), 10)));
           }}
         />
         <Slider
@@ -295,49 +193,44 @@ const preferences = ({ navigation }) => {
             ? `Bathrooms: ${bathroom}`
             : 'Bathrooms: 8+'}
         </Text>
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-          <Button title={!imageLength ? 'Let\'s get some pictures of your sublet!' : 'Add some more pictures!'} onPress={_pickImage} />
-          {images.map(
-            (image) => {
-              return (
-                <ImageBackground source={{ uri: image.image }} key={image.key} resizeMode="cover" style={{ width: 200, height: 200, marginTop: 10 }}>
-                  <Icon
-                    position="relative"
-                    name="trash"
-                    containerStyle={
-                        {
-                          width: 26,
-                          height: 26,
-                          alignItems: 'center',
-                          alignSelf: 'center',
-                          marginTop: 87,
-                          backgroundColor: 'rgba(255, 255, 255, 0.5)',
-                        }
-                      }
-                    type="font-awesome"
-                    onPress={() => deleteImage(image.key)}
-                  />
-                </ImageBackground>
-              );
-            },
-          )}
-        </View>
-      </View>
-      <View style={{
-        flex: 1, alignItems: 'center', justifyContent: 'center', marginTop: 40,
-      }}
-      >
-        <Button title="Add Sublet!"
+        <Text>
+          Drag the Marker on the map below to set your location, or enter your own!
+        </Text>
+        <Input
+          placeholder="Latitude"
+          value={latitude === 0 ? '' : latitude.toString()}
+          leftIcon={{ type: 'font-awesome', name: 'map' }}
+          keyboardType="numeric"
+          onChangeText={(value) => {
+            dispatch(setLatitude(parseInt(value.toString().replace(/[^0-9]/g, ''), 10)));
+          }}
+        />
+        <Input
+          placeholder="Longitude"
+          value={longitude === 0 ? '' : longitude.toString()}
+          leftIcon={{ type: 'font-awesome', name: 'map' }}
+          keyboardType="numeric"
+          onChangeText={(value) => {
+            dispatch(setLongitude(parseInt(value.toString().replace(/[^0-9]/g, ''), 10)));
+          }}
+        />
+        <Input
+          placeholder="Range (Miles), 0 means unlimited"
+          value={range === 0 ? '' : range.toString()}
+          leftIcon={{ type: 'font-awesome', name: 'location-arrow' }}
+          keyboardType="numeric"
+          onChangeText={(value) => {
+            dispatch(setRange(parseInt(value.toString().replace(/[^0-9]/g, ''), 10)));
+          }}
+        />
+        <Button title="Update Preferences"
           onPress={() => {
-            submit();
-            setTimeout(() => {
-              scrollView.scrollToEnd();
-            }, 200);
+            updatePreferences();
           }}
         />
         {errorLength
           ? (
-            <Badge value="The Following entries were not filled:"
+            <Badge value="The Following issues have occurred:"
               status="primary"
               badgeStyle={{
                 padding: 10,
@@ -362,17 +255,64 @@ const preferences = ({ navigation }) => {
                   marginTop: 3,
                 }}
                 textStyle={
-                {
-                  fontSize: 18,
+                  {
+                    fontSize: 18,
+                  }
                 }
-              }
               />
             );
           },
         ) : null}
+        <MapView style={styles.mapStyle}
+          loadingEnabled
+          initialRegion={
+            {
+              latitude: latitude || 0,
+              longitude: longitude || 0,
+              latitudeDelta: range / 8,
+              longitudeDelta: range / 8,
+            }
+            }
+          region={{
+            latitude: latitude || 0,
+            longitude: longitude || 0,
+            latitudeDelta: range / 8,
+            longitudeDelta: range / 8,
+          }}
+        >
+          {sublets.map((marker) => (
+            <Marker
+              coordinate={{ latitude: marker.latitude, longitude: marker.longitude }}
+              title={marker.title}
+              description={marker.description}
+              key={marker.uid}
+            />
+          ))}
+          <Marker draggable
+            coordinate={{ latitude: latitude || 0, longitude: longitude || 0 }}
+            title="Center of Sublets"
+            pinColor="green"
+            onDragEnd={(e) => {
+              console.log(e);
+              dispatch(setLongitude(e.nativeEvent.coordinate.longitude));
+              dispatch(setLatitude(e.nativeEvent.coordinate.latitude));
+            }}
+          />
+          <Circle
+            center={
+              {
+                latitude: latitude || 0,
+                longitude: longitude || 0,
+              }
+            }
+            radius={(range || 0) * 1609}
+            strokeColor="rgba(0, 150, 0, 0.5)"
+            fillColor="rgba(0, 255, 0, 0.2)"
+          />
+        </MapView>
       </View>
     </ScrollView>
   );
 };
 
-export default addSublet;
+export default preferences;

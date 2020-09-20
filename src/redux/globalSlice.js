@@ -8,7 +8,13 @@ import { setliked } from '../components/Liked/likedSlice';
 import { pushNextSublets, setCurrentSublet } from '../components/Home/homeSlice';
 import { setAdded } from '../components/Added/addedSlice';
 import { setLatitude, setLongitude } from '../components/Map/mapSlice';
-import { initialState, callJWT, loginGoogle } from '../api/api';
+import { setLatitude as setLatitude2, setLongitude as setLongitude2 } from '../components/Settings/preferencesSlice';
+import {
+  initialState,
+  callJWT,
+  loginGoogle,
+  refreshLoginToken,
+} from '../api/api';
 
 export const globalSlice = createSlice({
   name: 'global',
@@ -43,10 +49,13 @@ export const globalSlice = createSlice({
     setLocation: (state, action) => {
       state.location = action.payload;
     },
+    setAccessToken: (state, action) => {
+      state.loginResult.accessToken = action.payload;
+    },
   },
 });
 export const {
-  setLoginResult, setAllSublets, toggleIsLoggingIn, setJWT, setIsLoading, setLocation,
+  setLoginResult, setAllSublets, toggleIsLoggingIn, setJWT, setIsLoading, setLocation, setAccessToken,
 } = globalSlice.actions;
 
 export const loadStateFromBackend = () => {
@@ -65,10 +74,18 @@ export const loadStateFromBackend = () => {
   };
 };
 
-export const getJWT = (token, email) => {
+export const getJWT = (token, email, refreshToken) => {
   return async (dispatch, getState) => {
-    const res = await callJWT(token, email);
-    dispatch(setJWT(res));
+    let res = await callJWT(token, email);
+    if (!res) {
+      const newToken = await refreshLoginToken(refreshToken);
+      await dispatch(setAccessToken(newToken.accessToken));
+      const { loginResult } = JSON.parse(JSON.stringify(getState().global));
+      loginResult.accessToken = newToken.accessToken;
+      await AsyncStorage.setItem('LOGIN_RESULT_VALUE', JSON.stringify(loginResult));
+      res = await callJWT(newToken.accessToken, email, refreshToken);
+    }
+    await dispatch(setJWT(res));
     dispatch(setIsLoading(false));
   };
 };
@@ -84,6 +101,8 @@ export const getLocationOnStartup = (token) => {
     console.log('got position', position);
     dispatch(setLatitude(position.coords.latitude));
     dispatch(setLongitude(position.coords.longitude));
+    dispatch(setLatitude2(position.coords.latitude));
+    dispatch(setLongitude2(position.coords.longitude));
     await dispatch(setLocation(position));
   };
 };
@@ -97,7 +116,7 @@ export const signIn = () => {
       const result = await loginGoogle();
       if (result.type === 'success') {
         await AsyncStorage.setItem('LOGIN_RESULT_VALUE', JSON.stringify(result));
-        await dispatch(getJWT(result.accessToken, result.user.email));
+        await dispatch(getJWT(result.accessToken, result.user.email, result.refreshToken));
         await dispatch(setLoginResult(result));
         await dispatch(loadStateFromBackend());
       }

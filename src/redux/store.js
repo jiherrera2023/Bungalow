@@ -5,6 +5,7 @@ import likedReducer from '../components/Liked/likedSlice';
 import homeReducer from '../components/Home/homeSlice';
 import addedReducer from '../components/Added/addedSlice';
 import mapReducer from '../components/Map/mapSlice';
+import preferencesReducer from '../components/Settings/preferencesSlice';
 
 export default configureStore({
   reducer: {
@@ -14,5 +15,6 @@ export default configureStore({
     home: homeReducer,
     added: addedReducer,
     map: mapReducer,
+    preferences: preferencesReducer,
   },
 });
