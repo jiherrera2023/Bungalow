@@ -8,7 +8,10 @@ import { setliked } from '../components/Liked/likedSlice';
 import { pushNextSublets, setCurrentSublet } from '../components/Home/homeSlice';
 import { setAdded } from '../components/Added/addedSlice';
 import { setLatitude, setLongitude } from '../components/Map/mapSlice';
-import { setLatitude as setLatitude2, setLongitude as setLongitude2 } from '../components/Settings/preferencesSlice';
+import {
+  setLatitude as setLatitude2, setLongitude as setLongitude2,
+  setPreferences,
+} from '../components/Settings/preferencesSlice';
 import {
   initialState,
   callJWT,
@@ -71,6 +74,7 @@ export const loadStateFromBackend = () => {
     dispatch(setCurrentSublet(initState.home[0]));
     dispatch(setAdded(initState.added));
     dispatch(setAllSublets(initState.all));
+    dispatch(setPreferences(initState.filters));
   };
 };
 

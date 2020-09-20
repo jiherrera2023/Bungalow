@@ -63,10 +63,20 @@ export const preferencesSlice = createSlice({
       }
       state.footage = action.payload;
     },
+    setPreferences: (state, action) => {
+      state.minPrice = action.payload.minPrice;
+      state.maxPrice = action.payload.maxPrice;
+      state.footage = action.payload.footage;
+      state.bedroom = action.payload.bedroom;
+      state.bathroom = action.payload.bathroom;
+      state.latitude = action.payload.latitude;
+      state.longitude = action.payload.longitude;
+      state.range = action.payload.range;
+    },
   },
 });
 export const {
-  setMinPrice, setBedroom, setMaxPrice, setLatitude, setBathroom, setLongitude, setRange, setFootage,
+  setMinPrice, setBedroom, setMaxPrice, setLatitude, setBathroom, setLongitude, setRange, setFootage, setPreferences,
 } = preferencesSlice.actions;
 
 export default preferencesSlice.reducer;

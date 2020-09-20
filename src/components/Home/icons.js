@@ -32,7 +32,6 @@ const Home = (props) => {
   const heart = useSelector((state) => state.home.heart);
   const currentSublet = useSelector((state) => state.home.currentSublet);
   const email = useSelector((state) => state.global.loginResult.user.email);
-  const location = useSelector((state) => state.global.location);
   const toggleLiked = () => {
     if (heart) {
       // This sublet should be in liked
@@ -71,7 +70,16 @@ const Home = (props) => {
           setMapLocation();
         }}
       />
-      <SimpleLineIcons name="options" size={32} color="black" style={styles.icon} />
+      <SimpleLineIcons name="options"
+        size={32}
+        onPress={() => {
+          props.navigation.navigate('Home', {
+            screen: 'HomePreferences',
+          });
+        }}
+        color="black"
+        style={styles.icon}
+      />
     </View>
   );
 };
