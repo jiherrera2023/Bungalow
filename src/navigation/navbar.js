@@ -6,6 +6,7 @@ import HomeNavigator from './homeNavigator';
 import LikedNavigator from './likedNavigator';
 import SettingsNavigator from './settingsNavigator';
 import AddedNavigator from './addedNavigator';
+import MapNavigator from './mapNavigator';
 
 const Tab = createBottomTabNavigator();
 
@@ -37,6 +38,8 @@ const MainTabBar = () => {
                 iconName = 'heart';
               } else if (route.name === 'Added') {
                 iconName = 'plus';
+              } else if (route.name === 'Map') {
+                iconName = 'map';
               }
 
               // Return the respective icon
@@ -52,6 +55,7 @@ const MainTabBar = () => {
         <Tab.Screen name="Liked" component={LikedNavigator} />
         <Tab.Screen name="Added" component={AddedNavigator} />
         <Tab.Screen name="Settings" component={SettingsNavigator} />
+        <Tab.Screen name="Map" component={MapNavigator} />
       </Tab.Navigator>
     </NavigationContainer>
   );
