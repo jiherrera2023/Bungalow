@@ -8,8 +8,8 @@ export const homeSlice = createSlice({
   name: 'home',
   initialState: {
     sublets: [],
-    heart: { isEmpty: true, sublet: undefined },
-    currentSublet: null,
+    heart: true,
+    currentSublet: undefined,
   },
   reducers: {
     pushNextSublets: (state, action) => {

@@ -26,15 +26,17 @@ const Home = (props) => {
   });
   const dispatch = useDispatch();
   const heart = useSelector((state) => state.home.heart);
+  const currentSublet = useSelector((state) => state.home.currentSublet);
+  const email = useSelector((state) => state.global.loginResult.user.email);
 
   const toggleLiked = () => {
     if (heart) {
       // This sublet should be in liked
-      postLikedSublet(props.sublet.id, jwt);
-      dispatch(addToLiked(props.sublet));
+      postLikedSublet(currentSublet.id, email, jwt);
+      dispatch(addToLiked(currentSublet));
     } else {
-      removeLikedSublet(props.sublet.id, jwt);
-      dispatch(removeFromLiked(props.sublet));
+      removeLikedSublet(currentSublet.id, email, jwt);
+      dispatch(removeFromLiked(currentSublet));
     }
     dispatch(setHeart(!heart));
   };

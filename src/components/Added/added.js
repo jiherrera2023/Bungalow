@@ -34,6 +34,7 @@ const Added = ({ navigation }) => {
   const dispatch = useDispatch();
   const added = useSelector((state) => state.added.added);
   const jwt = useSelector((state) => state.global.jwt);
+  const email = useSelector((state) => state.global.loginResult.user.email);
 
   const styles = StyleSheet.create({
     list: {
@@ -82,7 +83,7 @@ const Added = ({ navigation }) => {
 
   const deleteSublet = (rowMap, index) => {
     closeRow(rowMap, index);
-    removePostedSublet(added[index].id, jwt);
+    removePostedSublet(added[index].id, email, jwt);
     dispatch(removeFromAdded(added[index]));
   };
 

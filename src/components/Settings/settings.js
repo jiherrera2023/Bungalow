@@ -135,6 +135,13 @@ export default (props) => {
             }}
             rightContent={<Text>1.0.0</Text>}
           />
+          <BaseRow
+            text="Preferences"
+            leftIcon={{
+              name: 'book',
+              type: 'font-awesome',
+            }}
+          />
         </SettingsPage>
       </View>
       <Button

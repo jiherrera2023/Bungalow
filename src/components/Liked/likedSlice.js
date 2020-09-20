@@ -12,7 +12,6 @@ export const likedSlice = createSlice({
       state.liked = action.payload;
     },
     addToLiked: (state, action) => {
-      console.log('liked slicer is receiving', action.payload);
       state.liked.push(action.payload);
     },
     removeFromLiked: (state, action) => {

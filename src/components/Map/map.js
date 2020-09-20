@@ -89,8 +89,8 @@ const Map = () => {
               setRegion({
                 latitude: marker.latitude,
                 longitude: marker.longitude,
-                latitudeDelta: 0.0922,
-                longitudeDelta: 0.0421,
+                latitudeDelta: region.latitudeDelta,
+                longitudeDelta: region.longitudeDelta,
               });
             }}
             description={marker.description}

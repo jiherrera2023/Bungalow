@@ -56,7 +56,7 @@ export const loadStateFromBackend = () => {
     const userEmail = getState().global.loginResult.user.email;
     const jwtToken = getState().global.jwt;
     const initState = await initialState(userEmail, jwtToken);
-
+    console.log(initState);
     dispatch(setliked(initState.liked));
     dispatch(pushNextSublets(initState.home));
     dispatch(setCurrentSublet(initState.home[0]));

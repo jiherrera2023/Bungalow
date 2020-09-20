@@ -117,8 +117,8 @@ const postSublet = async (sublet, jwt) => {
   return res.data;
 };
 
-const postSeenSublet = async (subletId, jwt) => {
-  const res = await axios.post(API_ROOT + API_POST_SEEN, { id: subletId, timestamp: Date.now() }, {
+const postSeenSublet = async (id, email, jwt) => {
+  const res = await axios.post(API_ROOT + API_POST_SEEN, { id, email, timestamp: Date.now() }, {
     headers: {
       authorization: jwt,
     },
@@ -129,8 +129,8 @@ const postSeenSublet = async (subletId, jwt) => {
   return res.data;
 };
 
-const postLikedSublet = async (subletId, jwt) => {
-  const res = await axios.post(API_ROOT + API_POST_LIKED, { id: subletId, timestamp: Date.now() }, {
+const postLikedSublet = async (id, email, jwt) => {
+  const res = await axios.post(API_ROOT + API_POST_LIKED, { id, email, timestamp: Date.now() }, {
     headers: {
       authorization: jwt,
     },
@@ -141,8 +141,8 @@ const postLikedSublet = async (subletId, jwt) => {
   return res.data;
 };
 
-const removeLikedSublet = async (subletId, jwt) => {
-  const res = await axios.post(API_ROOT + API_REMOVE_LIKED, { id: subletId, timestamp: Date.now() }, {
+const removeLikedSublet = async (id, email, jwt) => {
+  const res = await axios.post(API_ROOT + API_REMOVE_LIKED, { id, email, timestamp: Date.now() }, {
     headers: {
       authorization: jwt,
     },
@@ -153,8 +153,8 @@ const removeLikedSublet = async (subletId, jwt) => {
   return res.data;
 };
 
-const removePostedSublet = async (id, jwt) => {
-  const res = await axios.post(API_ROOT + API_REMOVE_POST, { id }, {
+const removePostedSublet = async (id, email, jwt) => {
+  const res = await axios.post(API_ROOT + API_REMOVE_POST, { id, email }, {
     headers: {
       authorization: jwt,
     },

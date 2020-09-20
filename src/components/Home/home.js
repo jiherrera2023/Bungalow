@@ -10,7 +10,7 @@ import Constants from 'expo-constants';
 import Swiper from 'react-native-deck-swiper';
 
 import { useSelector, useDispatch } from 'react-redux';
-import { callForNextBatch, setCurrentSublet } from './homeSlice';
+import { callForNextBatch, setHeart } from './homeSlice';
 
 import { postSeenSublet } from '../../api/api';
 
@@ -20,6 +20,7 @@ const Home = (props) => {
   const dispatch = useDispatch();
   const cards = useSelector((state) => state.home.sublets);
   const jwt = useSelector((state) => state.global.jwt);
+  const email = useSelector((state) => state.global.loginResult.user.email);
   const [swiper, setSwiper] = React.useState(undefined);
   const [currentIndex, setCurrentIndex] = React.useState(0);
 
@@ -111,8 +112,8 @@ const Home = (props) => {
                     } else {
                       setCurrentIndex(cardIndex + 1);
                     }
-                    postSeenSublet(cards[currentIndex].id, jwt);
-                    dispatch(setCurrentSublet(cards[currentIndex + 1]));
+                    postSeenSublet(cards[currentIndex].id, email, jwt);
+                    dispatch(setHeart({ isEmpty: true, sublet: cards[currentIndex + 1] }));
                   }}
                   backgroundColor="#C1DCE7"
                   stackSize={2}
