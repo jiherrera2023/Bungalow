@@ -6,13 +6,16 @@ import store from './src/redux/store';
 import MainTabBar from './src/navigation/navbar';
 import Login from './src/components/login';
 import {
-  setLoginResult, getJWT, setIsLoading, loadStateFromBackend, getLocationOnStartup,
+  setLoginResult,
+  getJWT,
+  setIsLoading,
+  loadStateFromBackend,
+  getLocationOnStartup,
 } from './src/redux/globalSlice';
 
 const App = () => {
   const dispatch = useDispatch();
-  // eslint-disable-next-line
-  const [location, setLocation] = React.useState(null);
+
   const setUp = async () => {
     let item = await AsyncStorage.getItem('LOGIN_RESULT_VALUE');
     if (item) {
@@ -23,6 +26,7 @@ const App = () => {
     } else {
       dispatch(setIsLoading(false));
     }
+    // Other Startup Tasks
     dispatch(getLocationOnStartup());
   };
 

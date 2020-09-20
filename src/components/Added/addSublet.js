@@ -8,13 +8,19 @@ import {
   Platform,
   ImageBackground,
 } from 'react-native';
-import * as FileSystem from 'expo-file-system';
+
 import {
   Slider, Input, Text, Button, Icon, Badge,
 } from 'react-native-elements';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import * as ImagePicker from 'expo-image-picker';
 import * as Permissions from 'expo-permissions';
+
+import { uploadImagesToImgur, postSublet } from '../../api/api';
+import {
+  setBedroom, setAddress, setDescription, setBathroom, setImages, addImage, setPhone, setTitle, setFootage, setPrice,
+} from './addedSlice';
+import { addToLiked } from '../Liked/likedSlice';
 
 const styles = StyleSheet.create({
   container: {
@@ -49,74 +55,34 @@ const styles = StyleSheet.create({
   },
 });
 
-const uploadImagesToImgur = async (images) => {
-  const auth = 'Client-ID cd419a05267203b';
-  console.log('starting imgur upload', images);
-  const rawImages = [];
+const addSublet = ({ navigation }) => {
+  const dispatch = useDispatch();
+  const title = useSelector((state) => state.added.title);
+  const address = useSelector((state) => state.added.address);
+  const description = useSelector((state) => state.added.description);
+  const price = useSelector((state) => state.added.price);
+  const footage = useSelector((state) => state.added.footage);
+  const phone = useSelector((state) => state.added.phone);
+  const bedroom = useSelector((state) => state.added.bedroom);
+  const bathroom = useSelector((state) => state.added.bathroom);
+  const images = useSelector((state) => state.added.images);
 
-  async function asyncForEach(array, callback) {
-    for (let index = 0; index < array.length; index++) {
-      // eslint-disable-next-line
-      await callback(array[index], index, array);
-    }
-  }
-  await asyncForEach(images, async (item) => {
-    await FileSystem.readAsStringAsync(item.image, { encoding: 'base64' }).then((res) => {
-      rawImages.push(res);
-    }).catch((err) => { console.log(err); });
-  });
-
-  console.log('rawImages', rawImages);
-  const imageUrls = [];
-
-  await asyncForEach(rawImages, async (item, i) => {
-    const formData = new FormData();
-    formData.append('upload', {
-      image: item,
-      type: 'base64',
-    });
-    const result = await fetch('https://api.imgur.com/3/image', {
-      method: 'POST',
-      body: formData,
-      headers: {
-        Authorization: auth,
-        Accept: 'application/json',
-      },
-    }).catch((err) => {
-      console.log('fetch error:', err);
-    });
-    const imgUrl = `https://imgur.com/gallery/${result.data.id}`;
-
-    imageUrls.push(imgUrl);
-  }).catch((err) => {
-    console.log(err);
-  });
-  return imageUrls;
-};
-
-const addSublet = () => {
-  const [bedroom, setBedroom] = React.useState(0);
-  const [address, setAddress] = React.useState('');
-  const [description, setDescription] = React.useState('');
-  const [bathroom, setBathroom] = React.useState(0);
-  const [images, setImages] = React.useState([]);
-  const [phone, setPhone] = React.useState('');
-  const [title, setTitle] = React.useState('');
-  const [footage, setFootage] = React.useState('');
-  const [price, setPrice] = React.useState('');
   const [locationHeight, setLocationHeight] = React.useState(0);
   const [locationPredictions, setLocationPredictions] = React.useState(null);
   const [submitErrors, setErrors] = React.useState([]);
   const [scrollView, setScrollView] = React.useState(null);
+
   const biggerBedroom = (bedroom > 8);
   const biggerBathroom = (bathroom > 8);
   const imageLength = (images.length > 0);
   const errorLength = (submitErrors.length > 0);
   const location = useSelector((state) => state.global.location);
+  const userInfo = useSelector((state) => state.global.loginResult.user);
+  const jwt = useSelector((state) => state.global.jwt);
 
   function pressedPrediction(prediction) {
     Keyboard.dismiss();
-    setAddress(prediction.description);
+    dispatch(setAddress(prediction.description));
     setLocationPredictions(null);
     setLocationHeight(0);
   }
@@ -125,27 +91,21 @@ const addSublet = () => {
   };
   function deleteImage(uri) {
     const deleted = images.filter((item) => item.key !== uri);
-    setImages(deleted);
+    dispatch(setImages(deleted));
   }
   const _pickImage = async () => {
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.All,
         allowsEditing: true,
-        aspect: [4, 3],
         quality: 1,
       });
       if (!result.cancelled) {
         const generatedKey = generateKey(result.uri);
-        setImages((oldImages) => [...oldImages, {
+        dispatch(addImage({
           key: generatedKey,
           image: result.uri,
-        }]);
-        const newImages = [...images, {
-          key: generatedKey,
-          image: result.uri,
-        }];
-        setImages(newImages);
+        }));
       }
     } catch (E) {
       console.log(E);
@@ -184,16 +144,20 @@ const addSublet = () => {
     if (images.length === 0) {
       errors.push('images');
     }
-    console.log('submit');
+    console.log('Pressed Submit');
     setErrors(errors);
     if (errors.length !== 0) {
       return false;
     }
-    uploadImagesToImgur(images).then((res) => {
-      console.log('upload links', res);
-    }).catch((err) => {
-      console.log('upload link err:', err);
-    });
+
+    const imageUrls = await uploadImagesToImgur(images);
+    const postedSublet = await postSublet({
+      title, address, description, bathroom, price, footage, bedroom, phone, imageUrls, email: userInfo.email, name: userInfo.name,
+    }, jwt);
+
+    dispatch(addToLiked(postedSublet));
+
+    navigation.navigate('Added', { screen: 'AddedList' });
     return true;
   }
   async function onChangeDestination(destination, latitude, longitude) {
@@ -242,7 +206,7 @@ const addSublet = () => {
           placeholder="Enter Title"
           value={title}
           onChangeText={(value) => {
-            setTitle(value);
+            dispatch(setTitle(value));
           }}
         />
         <Input
@@ -258,7 +222,7 @@ const addSublet = () => {
           autoCompleteType="off"
           placeholder="Enter Address"
           onChangeText={(value) => {
-            setAddress(value);
+            dispatch(setAddress(value));
             onChangeDestination(value, location.coords.latitude || 0, location.coords.longitude || 0);
           }}
           value={address}
@@ -285,7 +249,7 @@ const addSublet = () => {
           placeholder="Enter Description"
           value={description}
           onChangeText={(value) => {
-            setDescription(value);
+            dispatch(setDescription(value));
           }}
         />
         <Input
@@ -294,7 +258,7 @@ const addSublet = () => {
           leftIcon={{ type: 'font-awesome', name: 'dollar' }}
           keyboardType="numeric"
           onChangeText={(value) => {
-            setPrice(value.toString().replace(/[^0-9]/g, ''));
+            dispatch(setPrice(value.toString().replace(/[^0-9]/g, '')));
           }}
         />
         <Input
@@ -303,7 +267,7 @@ const addSublet = () => {
           keyboardType="numeric"
           rightIcon={{ type: 'font-awesome', name: 'home' }}
           onChangeText={(value) => {
-            setFootage(value.toString().replace(/[^0-9]/g, ''));
+            dispatch(setFootage(value.toString().replace(/[^0-9]/g, '')));
           }}
         />
         <Input
@@ -313,12 +277,12 @@ const addSublet = () => {
           leftIcon={{ type: 'font-awesome', name: 'phone' }}
           keyboardType="numeric"
           onChangeText={(value) => {
-            setPhone(value.toString().replace(/[^0-9]/g, ''));
+            dispatch(setPhone(value.toString().replace(/[^0-9]/g, '')));
           }}
         />
         <Slider
           value={bedroom}
-          onValueChange={(value) => setBedroom(value)}
+          onValueChange={(value) => dispatch(setBedroom(value))}
           step={1}
           maximumValue={9}
           thumbTintColor="#249FF7"
@@ -338,7 +302,7 @@ const addSublet = () => {
         </Text>
         <Slider
           value={bathroom}
-          onValueChange={(value) => setBathroom(value)}
+          onValueChange={(value) => dispatch(setBathroom(value))}
           step={1}
           maximumValue={9}
           thumbTintColor="#249FF7"
@@ -361,7 +325,7 @@ const addSublet = () => {
           {images.map(
             (image) => {
               return (
-                <ImageBackground source={{ uri: image.image }} key={image.key} style={{ width: 200, height: 200, marginTop: 10 }}>
+                <ImageBackground source={{ uri: image.image }} key={image.key} resizeMode="cover" style={{ width: 200, height: 200, marginTop: 10 }}>
                   <Icon
                     position="relative"
                     name="trash"

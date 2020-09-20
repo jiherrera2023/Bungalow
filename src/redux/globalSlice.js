@@ -2,12 +2,9 @@
 
 import { createSlice } from '@reduxjs/toolkit';
 import AsyncStorage from '@react-native-community/async-storage';
-import * as Google from 'expo-google-app-auth';
 import * as Location from 'expo-location';
-import axios from 'axios';
-import {
-  API_ROOT, API_ACCESS, API_LOAD_INITIAL_STATE,
-} from '../configs';
+
+import { initialState, callJWT, loginGoogle } from '../api/api';
 
 export const globalSlice = createSlice({
   name: 'global',
@@ -49,33 +46,21 @@ export const {
   setLoginResult, appendSublet, toggleIsLoggingIn, setJWT, setIsLoading, setLocation,
 } = globalSlice.actions;
 
-const callJWT = async (token, email, dispatch) => {
-  // TODO: Merge these into one API call. Add Referesh token functionality
-  await axios.post(API_ROOT + API_ACCESS, { accessToken: token, email: email }).then((res) => {
-    dispatch(setJWT(res.data.jwt));
-    console.log('jwt access granted: ', res.data.jwt);
-  }).catch((err) => {
-    console.log('jwt access failed: ', err);
-  });
-};
-
 export const loadStateFromBackend = () => {
   return async (dispatch, getState) => {
     // Get state w/ jwt accessToken
-    // save state to homeslice, likedSlice, and addedSlice
+    // TODO: save state to homeslice, likedSlice, and addedSlice
     const userEmail = getState().global.loginResult.user.email;
     const jwtToken = getState().global.jwt;
-    await axios.post(API_ROOT + API_LOAD_INITIAL_STATE, { email: userEmail, amount: 15 }, { headers: { authorization: jwtToken } }).then((res) => {
-      console.log(res.data);
-    }).catch((err) => {
-      console.log('Init State Load Failed', err);
-    });
+    const initState = initialState(userEmail, jwtToken);
+    console.log(initState);
   };
 };
 
 export const getJWT = (token, email) => {
   return async (dispatch, getState) => {
-    callJWT(token, email, dispatch);
+    const res = callJWT(token, email, dispatch);
+    dispatch(setJWT(res.data.jwt));
     dispatch(setIsLoading(false));
   };
 };
@@ -84,7 +69,7 @@ export const getLocationOnStartup = (token) => {
   return async (dispatch, getState) => {
     const { status } = await Location.requestPermissionsAsync();
     if (status !== 'granted') {
-      alert('Permission to access location was denied'); // eslint-disable-line
+      alert('Permission to access location was denied. You won\'t be able to see sublets near you!'); // eslint-disable-line
     }
 
     const position = await Location.getCurrentPositionAsync({});
@@ -98,11 +83,8 @@ export const signIn = () => {
     try {
       // Toggle Login Button Load Animation On
       await dispatch(toggleIsLoggingIn());
-      const result = await Google.logInAsync({
-        androidClientId: getState().global.androidClientId,
-        // iosClientId: YOUR_CLIENT_ID_HERE,  <-- if you use iOS
-        scopes: ['profile', 'email'],
-      });
+      const clientId = getState().global.androidClientId;
+      const result = await loginGoogle(clientId);
       if (result.type === 'success') {
         await AsyncStorage.setItem('LOGIN_RESULT_VALUE', JSON.stringify(result));
         await dispatch(getJWT(result.accessToken, result.user.email));
