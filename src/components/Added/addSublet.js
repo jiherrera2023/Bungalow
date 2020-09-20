@@ -18,9 +18,8 @@ import * as Permissions from 'expo-permissions';
 
 import { uploadImagesToImgur, postSublet } from '../../api/api';
 import {
-  setBedroom, setAddress, setDescription, setBathroom, setImages, addImage, setPhone, setTitle, setFootage, setPrice,
+  setBedroom, setAddress, setDescription, setBathroom, setImages, addImage, setPhone, setTitle, setFootage, setPrice, addToAdded,
 } from './addedSlice';
-import { addToLiked } from '../Liked/likedSlice';
 
 const styles = StyleSheet.create({
   container: {
@@ -154,8 +153,9 @@ const addSublet = ({ navigation }) => {
     const postedSublet = await postSublet({
       title, address, description, bathroom, price, footage, bedroom, phone, imageUrls, email: userInfo.email, name: userInfo.name,
     }, jwt);
+
     console.log('posted sublet is', postedSublet.data);
-    dispatch(addToLiked(postedSublet.data));
+    dispatch(addToAdded(postedSublet.data));
 
     navigation.navigate('Added', { screen: 'AddedList' });
     dispatch(setBedroom(0));

@@ -7,8 +7,10 @@ import { AntDesign, Entypo, SimpleLineIcons } from '@expo/vector-icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { addToLiked, removeFromLiked } from '../Liked/likedSlice';
 import { setHeart } from './homeSlice';
+import { postLikedSublet, removeLikedSublet } from '../../api/api';
 
 const Home = (props) => {
+  const jwt = useSelector((state) => state.global.jwt);
   const styles = StyleSheet.create({
     iconWrapper: {
       flexDirection: 'row',
@@ -28,8 +30,10 @@ const Home = (props) => {
   const toggleLiked = () => {
     if (heart) {
       // This sublet should be in liked
+      postLikedSublet(props.sublet.id, jwt);
       dispatch(addToLiked(props.sublet));
     } else {
+      removeLikedSublet(props.sublet.id, jwt);
       dispatch(removeFromLiked(props.sublet));
     }
     dispatch(setHeart(!heart));

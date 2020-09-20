@@ -4,12 +4,17 @@ import { createSlice } from '@reduxjs/toolkit';
 import AsyncStorage from '@react-native-community/async-storage';
 import * as Location from 'expo-location';
 
+import { setliked } from '../components/Liked/likedSlice';
+import { pushNextSublets, setCurrentSublet } from '../components/Home/homeSlice';
+import { setAdded } from '../components/Added/addedSlice';
+
 import { initialState, callJWT, loginGoogle } from '../api/api';
+import androidClientId from '../api/configs';
 
 export const globalSlice = createSlice({
   name: 'global',
   initialState: {
-    androidClientId: '353507777246-q9hud32c3brbudlk47que2p3rcg5dr6f.apps.googleusercontent.com',
+    androidClientId: androidClientId,
     loginResult: { isLoading: true },
     subletData: [],
     isLoggingIn: false,
@@ -54,6 +59,10 @@ export const loadStateFromBackend = () => {
     const jwtToken = getState().global.jwt;
     const initState = await initialState(userEmail, jwtToken);
     console.log(initState);
+    // dispatch(setliked(initState.data.liked));
+    // dispatch(pushNextSublets(initState.data.home));
+    // dispatch(setCurrentSublet(initState.data.home[0]));
+    // dispatch(setAdded(initState.data.added));
   };
 };
 

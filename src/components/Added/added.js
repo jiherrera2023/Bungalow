@@ -7,6 +7,7 @@ import { AntDesign } from '@expo/vector-icons';
 
 import { useSelector, useDispatch } from 'react-redux';
 import { removeFromAdded } from './addedSlice';
+import { removePostedSublet } from '../../api/api';
 
 const keyExtractor = (item, index) => index.toString();
 
@@ -32,6 +33,7 @@ const renderItem = (item, navigation) => {
 const Added = ({ navigation }) => {
   const dispatch = useDispatch();
   const added = useSelector((state) => state.added.added);
+  const jwt = useSelector((state) => state.global.jwt);
 
   const styles = StyleSheet.create({
     list: {
@@ -80,6 +82,7 @@ const Added = ({ navigation }) => {
 
   const deleteSublet = (rowMap, index) => {
     closeRow(rowMap, index);
+    removePostedSublet(added[index].id, jwt);
     dispatch(removeFromAdded(added[index]));
   };
 

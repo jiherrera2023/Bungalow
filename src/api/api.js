@@ -19,6 +19,8 @@ import {
   API_REMOVE_LIKED,
   API_REMOVE_POST,
   API_LOAD_INITIAL_STATE,
+  API_CALL_NEXT_BATCH,
+  imgurAuth,
 } from './configs';
 
 const initialState = async (userEmail, jwtToken) => {
@@ -46,7 +48,6 @@ const loginGoogle = async (clientId) => {
 
 const uploadImagesToImgur = async (imagesToUpload) => {
   const imageUrls = [];
-  const auth = 'Client-ID cd419a05267203b';
   console.log('Starting Imgur Upload', imagesToUpload);
   let rawImages = [];
 
@@ -59,7 +60,7 @@ const uploadImagesToImgur = async (imagesToUpload) => {
   for (let i = 0; i < rawImages.length; i++) {
     const reqPromise = axios.post('https://api.imgur.com/3/image', rawImages[i], {
       headers: {
-        Authorization: auth,
+        Authorization: imgurAuth,
       },
     }).then((res) => {
       return res.data.data.link;
@@ -96,7 +97,7 @@ const postSublet = async (sublet, jwt) => {
 };
 
 const postSeenSublet = async (subletId, jwt) => {
-  return axios.post(API_ROOT + API_POST_SEEN, subletId, {
+  return axios.post(API_ROOT + API_POST_SEEN, { id: subletId, timestamp: Date.now() }, {
     headers: {
       authorization: jwt,
     },
@@ -106,7 +107,7 @@ const postSeenSublet = async (subletId, jwt) => {
 };
 
 const postLikedSublet = async (subletId, jwt) => {
-  return axios.post(API_ROOT + API_POST_LIKED, subletId, {
+  return axios.post(API_ROOT + API_POST_LIKED, { id: subletId, timestamp: Date.now() }, {
     headers: {
       authorization: jwt,
     },
@@ -116,7 +117,7 @@ const postLikedSublet = async (subletId, jwt) => {
 };
 
 const removeLikedSublet = async (subletId, jwt) => {
-  return axios.post(API_ROOT + API_REMOVE_LIKED, subletId, {
+  return axios.post(API_ROOT + API_REMOVE_LIKED, { id: subletId, timestamp: Date.now() }, {
     headers: {
       authorization: jwt,
     },
@@ -135,6 +136,16 @@ const removePostedSublet = async (subletId, jwt) => {
   });
 };
 
+const callForHomeSublets = async (email, jwt, quantity) => {
+  return axios.post(API_ROOT + API_CALL_NEXT_BATCH, { email, quantity: quantity || 10 }, {
+    headers: {
+      authorization: jwt,
+    },
+  }).catch((err) => {
+    console.log('Error in Backend Post Sublet', err);
+  });
+};
+
 export {
   initialState,
   callJWT,
@@ -145,4 +156,5 @@ export {
   postLikedSublet,
   removeLikedSublet,
   removePostedSublet,
+  callForHomeSublets,
 };

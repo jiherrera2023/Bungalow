@@ -12,11 +12,14 @@ import Swiper from 'react-native-deck-swiper';
 import { useSelector, useDispatch } from 'react-redux';
 import { callForNextBatch, setCurrentSublet } from './homeSlice';
 
+import { postSeenSublet } from '../../api/api';
+
 import Icons from './icons';
 
 const Home = (props) => {
   const dispatch = useDispatch();
   const cards = useSelector((state) => state.home.sublets);
+  const jwt = useSelector((state) => state.global.jwt);
   const [swiper, setSwiper] = React.useState(undefined);
   const [currentIndex, setCurrentIndex] = React.useState(0);
 
@@ -103,6 +106,7 @@ const Home = (props) => {
             } else {
               setCurrentIndex(cardIndex + 1);
             }
+            postSeenSublet(cards[currentIndex].id, jwt);
             dispatch(setCurrentSublet(cards[currentIndex + 1]));
           }}
           backgroundColor="#C1DCE7"

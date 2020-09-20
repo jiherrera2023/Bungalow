@@ -7,6 +7,7 @@ import { SwipeListView } from 'react-native-swipe-list-view';
 import { useSelector, useDispatch } from 'react-redux';
 import { removeFromLiked } from './likedSlice';
 import { setHeart } from '../Home/homeSlice';
+import { removeLikedSublet } from '../../api/api';
 
 const keyExtractor = (item, index) => index.toString();
 
@@ -32,6 +33,7 @@ const renderItem = (item, navigation) => {
 const Liked = ({ navigation }) => {
   const dispatch = useDispatch();
   const liked = useSelector((state) => state.liked.liked);
+  const jwt = useSelector((state) => state.globel.jwt);
 
   const styles = StyleSheet.create({
     list: {
@@ -76,6 +78,7 @@ const Liked = ({ navigation }) => {
 
   const deleteSublet = (rowMap, index) => {
     closeRow(rowMap, index);
+    removeLikedSublet(liked[index].id, jwt);
     dispatch(removeFromLiked(liked[index]));
 
     if (JSON.stringify(liked[index]) === JSON.stringify(currentHomeSublet)) {
