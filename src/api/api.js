@@ -21,11 +21,22 @@ import {
   API_LOAD_INITIAL_STATE,
   API_CALL_NEXT_BATCH,
   imgurAuth,
+  androidClientId,
 } from './configs';
 
 const initialState = async (userEmail, jwtToken) => {
   return axios.post(API_ROOT + API_LOAD_INITIAL_STATE, { email: userEmail, amount: 15 }, { headers: { authorization: jwtToken } }).catch((err) => {
     console.log('Init State Load Failed', err);
+  });
+};
+
+const getSublets = async (jwt) => {
+  return axios.get(API_ROOT + API_POST_SUBLET, {
+    headers: {
+      authorization: jwt,
+    },
+  }).catch((err) => {
+    console.log('Error in Backend Post Sublet', err);
   });
 };
 
@@ -36,9 +47,9 @@ const callJWT = async (token, email) => {
   });
 };
 
-const loginGoogle = async (clientId) => {
+const loginGoogle = async () => {
   return Google.logInAsync({
-    androidClientId: clientId,
+    androidClientId: androidClientId,
     // iosClientId: YOUR_CLIENT_ID_HERE,  <-- if you use iOS
     scopes: ['profile', 'email'],
   }).catch((err) => {
@@ -159,4 +170,5 @@ export {
   removeLikedSublet,
   removePostedSublet,
   callForHomeSublets,
+  getSublets,
 };

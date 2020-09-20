@@ -39,7 +39,7 @@ const MainTabBar = () => {
               } else if (route.name === 'Added') {
                 iconName = 'plus';
               } else if (route.name === 'Map') {
-                iconName = 'map';
+                iconName = 'enviromento';
               }
 
               // Return the respective icon
@@ -54,8 +54,9 @@ const MainTabBar = () => {
         <Tab.Screen name="Home" component={HomeNavigator} />
         <Tab.Screen name="Liked" component={LikedNavigator} />
         <Tab.Screen name="Added" component={AddedNavigator} />
-        <Tab.Screen name="Settings" component={SettingsNavigator} />
         <Tab.Screen name="Map" component={MapNavigator} />
+        <Tab.Screen name="Settings" component={SettingsNavigator} />
+
       </Tab.Navigator>
     </NavigationContainer>
   );

@@ -9,12 +9,10 @@ import { pushNextSublets, setCurrentSublet } from '../components/Home/homeSlice'
 import { setAdded } from '../components/Added/addedSlice';
 
 import { initialState, callJWT, loginGoogle } from '../api/api';
-import androidClientId from '../api/configs';
 
 export const globalSlice = createSlice({
   name: 'global',
   initialState: {
-    androidClientId: androidClientId,
     loginResult: { isLoading: true },
     subletData: [],
     isLoggingIn: false,
@@ -92,8 +90,7 @@ export const signIn = () => {
     try {
       // Toggle Login Button Load Animation On
       await dispatch(toggleIsLoggingIn());
-      const clientId = getState().global.androidClientId;
-      const result = await loginGoogle(clientId);
+      const result = await loginGoogle();
       if (result.type === 'success') {
         await AsyncStorage.setItem('LOGIN_RESULT_VALUE', JSON.stringify(result));
         await dispatch(getJWT(result.accessToken, result.user.email));

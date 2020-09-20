@@ -33,7 +33,7 @@ const renderItem = (item, navigation) => {
 const Liked = ({ navigation }) => {
   const dispatch = useDispatch();
   const liked = useSelector((state) => state.liked.liked);
-  const jwt = useSelector((state) => state.globel.jwt);
+  const jwt = useSelector((state) => state.global.jwt);
 
   const styles = StyleSheet.create({
     list: {
