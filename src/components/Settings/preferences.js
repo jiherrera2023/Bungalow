@@ -7,7 +7,6 @@ import {
   ScrollView,
   Platform,
   ImageBackground,
-  Image,
 } from 'react-native';
 
 import {
@@ -18,10 +17,6 @@ import * as ImagePicker from 'expo-image-picker';
 import * as Permissions from 'expo-permissions';
 
 import { uploadImagesToImgur, postSublet } from '../../api/api';
-import {
-  setBedroom, setAddress, setDescription, setBathroom, setImages, addImage, setPhone, setTitle, setFootage, setPrice, addToAdded,
-} from './addedSlice';
-import poweredByGoogle from '../../../assets/powered-by-google.png';
 
 const styles = StyleSheet.create({
   container: {
@@ -29,56 +24,14 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     marginRight: 10,
   },
-  bedroom: {
-    marginTop: 20,
-    zIndex: 1,
-    marginLeft: 20,
-    marginRight: 20,
-  },
-  bathroom: {
-    marginTop: 20,
-    zIndex: 1,
-    marginLeft: 20,
-    marginRight: 20,
-  },
-  locationSuggestion: {
-    backgroundColor: 'white',
-    padding: 5,
-    fontSize: 18,
-    borderWidth: 0.5,
-    zIndex: 1,
-  },
-  locationCard: {
-    borderWidth: 0,
-  },
-  phoneContainer: {
-
-  },
 });
 
-const addSublet = ({ navigation }) => {
-  const dispatch = useDispatch();
-  const title = useSelector((state) => state.added.title);
-  const address = useSelector((state) => state.added.address);
-  const description = useSelector((state) => state.added.description);
-  const price = useSelector((state) => state.added.price);
-  const footage = useSelector((state) => state.added.footage);
-  const phone = useSelector((state) => state.added.phone);
-  const bedroom = useSelector((state) => state.added.bedroom);
-  const bathroom = useSelector((state) => state.added.bathroom);
-  const images = useSelector((state) => state.added.images);
-
+const preferences = ({ navigation }) => {
   const [locationHeight, setLocationHeight] = React.useState(0);
   const [locationPredictions, setLocationPredictions] = React.useState(null);
   const [submitErrors, setErrors] = React.useState([]);
   const [scrollView, setScrollView] = React.useState(null);
 
-  const biggerBedroom = (bedroom > 8);
-  const biggerBathroom = (bathroom > 8);
-  const imageLength = (images.length > 0);
-  const errorLength = (submitErrors.length > 0);
-  const location = useSelector((state) => state.global.location);
-  const userInfo = useSelector((state) => state.global.loginResult.user);
   const jwt = useSelector((state) => state.global.jwt);
 
   function pressedPrediction(prediction) {
@@ -197,7 +150,7 @@ const addSublet = ({ navigation }) => {
           </TouchableHighlight>
         ),
       ));
-      setLocationHeight(120);
+      setLocationHeight(100);
     } catch (err) {
       console.log(err);
     }
@@ -259,13 +212,6 @@ const addSublet = ({ navigation }) => {
       }
         >
           {locationPredictions}
-          {locationPredictions
-            ? (
-              <Image
-                source={poweredByGoogle}
-                backgroundColor="white"
-              />
-            ) : null}
         </View>
         <Input
           multiline

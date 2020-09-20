@@ -34,8 +34,6 @@ const Liked = ({ navigation }) => {
   const dispatch = useDispatch();
   const liked = useSelector((state) => state.liked.liked);
   const jwt = useSelector((state) => state.global.jwt);
-  const email = useSelector((state) => state.global.loginResult.user.email);
-
   const styles = StyleSheet.create({
     list: {
       flex: 1,
@@ -79,7 +77,7 @@ const Liked = ({ navigation }) => {
 
   const deleteSublet = (rowMap, index) => {
     closeRow(rowMap, index);
-    removeLikedSublet(liked[index].id, email, jwt);
+    removeLikedSublet(liked[index].id, jwt);
     dispatch(removeFromLiked(liked[index]));
 
     if (JSON.stringify(liked[index]) === JSON.stringify(currentHomeSublet)) {

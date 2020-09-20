@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const Map = () => {
+const Map = (props) => {
   const location = useSelector((state) => state.global.location);
   const sublets = useSelector((state) => state.global.allSublets);
   const [region, setRegion] = React.useState({
@@ -83,7 +83,11 @@ const Map = () => {
             coordinate={{ latitude: marker.latitude, longitude: marker.longitude }}
             title={marker.title}
             onCalloutPress={() => {
-              console.log('test');
+              props.navigation.navigate('Home', { screen: 'HomeDetail', params: marker });
+            }}
+            region={region}
+            onRegionChange={(newRegion) => {
+              setRegion(newRegion);
             }}
             onPress={() => {
               setRegion({

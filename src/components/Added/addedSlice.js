@@ -24,7 +24,7 @@ export const likedSlice = createSlice({
       state.added.push(action.payload);
     },
     removeFromAdded: (state, action) => {
-      state.added = state.liked.filter((sublet) => {
+      state.added = state.added.filter((sublet) => {
         return sublet.id !== action.payload.id;
       });
     },

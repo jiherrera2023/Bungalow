@@ -66,7 +66,6 @@ const Added = ({ navigation }) => {
       position: 'absolute',
       bottom: 25,
       right: 25,
-      backgroundColor: '#C1DCE7',
     },
   });
 
