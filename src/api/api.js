@@ -87,6 +87,8 @@ const postSublet = async (sublet, jwt) => {
     images: sublet.imageUrls,
     email: sublet.email,
     name: sublet.name,
+    latitude: sublet.latitude,
+    longitude: sublet.longitude,
   }, {
     headers: {
       authorization: jwt,

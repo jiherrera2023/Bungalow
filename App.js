@@ -12,6 +12,7 @@ import {
   loadStateFromBackend,
   getLocationOnStartup,
 } from './src/redux/globalSlice';
+import Map from './src/components/Map/map';
 
 const App = () => {
   const dispatch = useDispatch();

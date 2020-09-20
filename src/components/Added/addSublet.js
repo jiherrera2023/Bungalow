@@ -148,15 +148,19 @@ const addSublet = ({ navigation }) => {
     if (errors.length !== 0) {
       return false;
     }
-
+    const geocodeAPIUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${address}&key=AIzaSyDgZGG4nGHkc1KUVns-69jzSCgSvbCFJNg`;
+    const geoCodeResult = await fetch(geocodeAPIUrl);
+    const geoCodeJSON = await geoCodeResult.json();
+    const coordinates = geoCodeJSON.results[0].geometry.location;
+    console.log(geoCodeJSON.results[0].formatted_address);
+    console.log(coordinates);
     const imageUrls = await uploadImagesToImgur(images);
     const postedSublet = await postSublet({
-      title, address, description, bathroom, price, footage, bedroom, phone, imageUrls, email: userInfo.email, name: userInfo.name,
+      title, address, description, bathroom, price, footage, bedroom, phone, imageUrls, email: userInfo.email, name: userInfo.name, latitude: coordinates.lat, longitude: coordinates.lng,
     }, jwt);
 
     console.log('posted sublet is', postedSublet.data);
     dispatch(addToAdded(postedSublet.data));
-
     navigation.navigate('Added', { screen: 'AddedList' });
     dispatch(setBedroom(0));
     dispatch(setAddress(''));

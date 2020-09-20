@@ -23,7 +23,12 @@
       "favicon": "./assets/favicon.png"
     },
     "android": {
-      "package": "com.bungalow.app"
+      "package": "com.bungalow.app",
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyDgZGG4nGHkc1KUVns-69jzSCgSvbCFJNg"
+        }
+      }
     }
   }
 }

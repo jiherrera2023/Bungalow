@@ -1,8 +1,9 @@
 import React from 'react';
-import MapView from 'react-native-maps';
+import MapView, { Marker } from 'react-native-maps';
 import {
-  StyleSheet, Text, View, Dimensions,
+  StyleSheet, View, Dimensions,
 } from 'react-native';
+import { useSelector, useDispatch } from 'react-redux';
 
 const styles = StyleSheet.create({
   container: {
@@ -17,19 +18,25 @@ const styles = StyleSheet.create({
   },
 });
 
-export default class App extends React.Component {
-  render() {
-    return (
-      <View style={styles.container}>
-        <MapView style={styles.mapStyle}
-          initialRegion={{
-            latitude: 37.78825,
-            longitude: -122.4324,
-            latitudeDelta: 0.0922,
-            longitudeDelta: 0.0421,
-          }}
-        />
-      </View>
-    );
-  }
-}
+const Map = () => {
+  const location = useSelector((state) => state.global.location);
+  console.log(location.coords.latitude);
+  console.log(location);
+  const [regionSet, setRegionSet] = React.useState(false);
+  return (
+    <View style={styles.container}>
+      <MapView style={styles.mapStyle}
+        loadingEnabled
+        initialRegion={{
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+          latitudeDelta: 0.0922,
+          longitudeDelta: 0.0421,
+        }}
+      />
+    </View>
+
+  );
+};
+
+export default Map;
