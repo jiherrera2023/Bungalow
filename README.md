@@ -16,7 +16,10 @@ Our backend is hosted in the following link:
 ```https://bungalow-api.herokuapp.com/```  
 This heroku app uses this github repo:
 ```https://github.com/vincentyliu2001/bungalow-api```
-
+Our algorithm is hosted in this following link:
+``https://bungalow-filter.herokuapp.com/```
+This heroku app doesn't use this github repo, but the source code is almost the same:
+```https://github.com/vincentyliu2001/bungalow-algorithm```
 **Overview of functionality:**
 * Posting Sublets: Users can post sublets to our backend in the following form:
 ```
